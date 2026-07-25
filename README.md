@@ -67,7 +67,7 @@ https://github.com/duongductrong/NotchKit.git
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.0.0")
+    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.1.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: ["NotchKit"])
@@ -159,8 +159,9 @@ All three are `var`s on the presenter, so an app can swap a whole look at runtim
 the window resizes itself when the panel size changes.
 
 **[`Examples/NotchDemo`](Examples/NotchDemo) ships three islands** that share no
-content code: a wide build-status panel, a narrow drop shelf with real file drops,
-and a full-bleed now-playing card. Each is one `IslandPreset` value; adding a
+content code: an AI coding agent panel with interactive permission prompts (Vibe Code),
+a native macOS music controller (Now Playing), and an interactive morph geometry inspector (Morph Inspector).
+Each is one `IslandPreset` value; adding a
 fourth needs no library changes. That is the pattern to copy.
 
 ```swift
