@@ -50,6 +50,12 @@ jank that no amount of tuning removes:
 - **Shape discontinuity.** A concave-cornered shape morphing while its container
   resizes has two competing sources of truth for its bounds.
 
+What this rules out is animating the frame, not changing it. Assigning a new
+`presenter.configuration` with a different `expandedSize` repositions the window
+in one discrete, un-animated step — which is how an app swaps between
+differently-sized panels without a reinstall. The invariant is that no transition
+ever has the window frame as one of its moving parts.
+
 So: create the window at expanded size, keep it there, and let SwiftUI draw a
 small pill inside a large transparent window for the collapsed state. The cost is
 a large mostly-transparent window above everything — which is why exact hit

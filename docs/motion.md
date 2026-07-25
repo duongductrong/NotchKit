@@ -128,7 +128,7 @@ repeating `withAnimation`) re-evaluates the view body every frame, forever — a
 permanent battery cost for decoration.
 
 Use Core Animation: describe the animation once, and the render server
-interpolates it with **zero** per-frame main-thread work. `NotchActivityBars` is
+interpolates it with **zero** per-frame main-thread work. `NotchBars` is
 the worked example; it animates `transform.scale.y` only, because animating
 `path` or `bounds` re-rasterises every frame and gives up most of the win.
 

@@ -80,7 +80,14 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
 
                 ZStack(alignment: .top) {
                     collapsedContent(width: collapsedWidth, height: collapsedHeight)
-                    expandedContent(width: expandedWidth, height: expandedHeight, topInset: collapsedHeight)
+                    expandedContent(
+                        width: expandedWidth,
+                        height: expandedHeight,
+                        topReserve: config.expandedTopReserve.resolved(
+                            collapsedHeight: collapsedHeight,
+                            hasPhysicalNotch: geometry.hasPhysicalNotch
+                        )
+                    )
                 }
                 // THE MORPH. Content overflows this frame while collapsed and is
                 // clipped to the shape, so the panel is revealed rather than
@@ -105,9 +112,10 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .ignoresSafeArea()
-        // The island is always dark ink, so force the scheme — otherwise content
-        // picks Light Mode colours and disappears against it.
-        .preferredColorScheme(.dark)
+        // Dark by default, because content that picks Light Mode colours vanishes
+        // against dark ink — and only for users who happen to be in Light Mode.
+        // `nil` opts out, for a deliberately light island.
+        .preferredColorScheme(style.colorScheme)
         .onAppear { syncMount(immediately: true) }
         .onChange(of: presenter.phase) { _, _ in syncMount() }
     }
@@ -135,18 +143,27 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
     }
 
     @ViewBuilder
-    private func expandedContent(width: CGFloat, height: CGFloat, topInset: CGFloat) -> some View {
+    private func expandedContent(width: CGFloat, height: CGFloat, topReserve: CGFloat) -> some View {
         if expandedMounted {
             VStack(spacing: 0) {
-                // Reserve the cutout row. Content here would sit behind the
-                // physical notch on a MacBook and simply not be visible.
-                Color.clear
-                    .frame(height: topInset)
-                    .allowsHitTesting(false)
+                // Reserve the cutout row when the policy asks for it: content up
+                // there sits behind the physical notch on a MacBook and is simply
+                // not visible. A zero reserve skips the row entirely rather than
+                // inserting an empty one, so `.canvas` really does get the full
+                // panel.
+                if topReserve > 0 {
+                    Color.clear
+                        .frame(height: topReserve)
+                        .allowsHitTesting(false)
+                }
 
                 expanded()
                     .padding(config.expandedContentInsets)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: config.expandedContentAlignment
+                    )
             }
             .frame(width: width, height: height, alignment: .top)
             .foregroundStyle(style.foreground)

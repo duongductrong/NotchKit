@@ -1,14 +1,30 @@
 # Customization
 
-Nothing about an island's content is fixed. The three value types below control
-everything else, and each has presets you can take wholesale or tweak field by
-field.
+NotchKit owns the window, the silhouette, hit testing, and the motion. You own
+everything you can see inside it.
 
-## Content: both slots take anything
+That split is the whole design. If you find yourself wanting to change something
+in `Sources/` to get the island you want, that is a gap in this document or a gap
+in the library — [open an issue](https://github.com/duongductrong/NotchKit/issues).
 
-`install(collapsed:expanded:)` takes plain `@ViewBuilder`s. The icon-and-counter in
-the examples is an example, not a contract — a slot can hold artwork, a progress
-bar, a chart, controls, live text, or nothing.
+- [Content: three slots, anything in them](#content-three-slots-anything-in-them)
+- [Packaging a look as a value](#packaging-a-look-as-a-value)
+- [The collapsed pill](#the-collapsed-pill)
+- [The expanded panel](#the-expanded-panel)
+- [Indicators: `NotchBars`](#indicators-notchbars)
+- [`NotchStyle`](#notchstyle)
+- [`NotchMotion`](#notchmotion)
+- [Changing everything at runtime](#changing-everything-at-runtime)
+- [Custom silhouette](#custom-silhouette)
+- [Your own continuous indicator](#your-own-continuous-indicator)
+- [Multi-display](#multi-display)
+- [What is not configurable, and why](#what-is-not-configurable-and-why)
+
+## Content: three slots, anything in them
+
+There are three places content goes: left of the cutout, right of the cutout, and
+the expanded panel. All three are plain SwiftUI. The icon-and-counter you see in
+examples is an example, not a contract.
 
 ```swift
 presenter.install(
@@ -33,29 +49,78 @@ presenter.install(
 )
 ```
 
-`NotchCutoutLayout` only exists to keep content out of the cutout. On a display
+`NotchCutoutLayout` exists only to keep content out of the cutout. On a display
 without one, pass `cutoutWidth: 0` and it degenerates into a leading/trailing bar —
-or skip it entirely and lay the pill out yourself.
+or skip it and lay the pill out yourself.
 
 ### Reading state from content
 
-`NotchPresenter` is `@Observable`, so content can branch on `presenter.phase`
-without any wiring:
+`NotchPresenter` is `@Observable`, so content branches on `presenter.phase` with no
+wiring:
 
 ```swift
 collapsed: {
     if presenter.phase == .peeking {
         Text("Done!").transition(.opacity)
     } else {
-        NotchActivityBars(mode: .active)
+        NotchBars(.wave())
     }
 }
 ```
 
-## Sizing: `NotchCollapsedWidth`
+## Packaging a look as a value
 
-The pill's drawn width and its hit target are separate, because a compact pill
-should still be easy to hit without being forced wide just to be clickable.
+Once an app has more than one island — a build-status island and a drop-shelf
+island, say — the useful move is to stop thinking about "configuring NotchKit" and
+start treating a whole island as a value:
+
+```swift
+struct IslandPreset: Identifiable {
+    let id: String
+    let name: String
+
+    // Everything NotchKit takes is per-preset, not global.
+    let configuration: NotchConfiguration
+    let motion: NotchMotion
+    let style: NotchStyle
+
+    // `@MainActor` because these read observable UI state.
+    let collapsedLeading:  @MainActor (AppModel) -> AnyView
+    let collapsedTrailing: @MainActor (AppModel) -> AnyView
+    let expanded:          @MainActor (AppModel) -> AnyView
+}
+```
+
+Then each island is a `static let` in its own file, and the shell that installs
+them knows nothing about any of them:
+
+```swift
+presenter.install(
+    collapsed: { model.preset.collapsedLeading(model) },   // reads `preset` → observed
+    expanded:  { model.preset.expanded(model) }
+)
+```
+
+Because the slots read observable state, swapping `preset` re-renders the island —
+no reinstall, no teardown.
+
+**[`Examples/NotchDemo`](../Examples/NotchDemo) is exactly this**, with three
+presets that share no content code:
+
+| Preset | Panel | Ink | Motion | Shows off |
+|---|---|---|---|---|
+| Vibe Code | 520 × 250, wide and short | hardware black | `.standard` | Four-bar equaliser, step list, progress |
+| Drop Notch | 400 × 300, narrow and tall | `.warmPaper` | `.playful` | Real `dropDestination`, tighter pill, generous hit padding |
+| Now Playing | 460 × 190, full-bleed | `.contrast` | `.crisp` | `.canvas` config — artwork under the cutout, no insets |
+
+Run `swift run NotchDemo` and switch between them in the panel. The `AnyView` in
+that struct is only there because three presets with different concrete view types
+live in one array; a single island needs `some View`.
+
+## The collapsed pill
+
+The pill's **drawn width** and its **hit target** are separate, because a compact
+pill should still be easy to hit without being forced wide to be clickable.
 
 ```swift
 var config = NotchConfiguration.standard
@@ -69,28 +134,89 @@ config.collapsedWidth = .wrapCutout(reserve: 44)
 config.collapsedWidth = .fixed(220)
 
 // Invisible margin around the pill, purely for aiming.
-config.collapsedHitPadding = 6
+config.collapsedHitPadding = 14
 ```
 
 `presenter.collapsedGutterWidth` resolves the usable per-side width for whichever
 strategy is active — pass that to `NotchCutoutLayout` rather than recomputing.
 
-To size the pill to its content, measure the content and feed the result into
-`.fixed(_:)`. There is deliberately no automatic intrinsic mode: the pill width
-feeds the morph, and a width that changes as content changes makes the morph's
-start point move underneath it.
+`NotchCutoutLayout` also takes:
 
-## `NotchConfiguration`
+| Parameter | Default | Notes |
+|---|---|---|
+| `edgeInset` | `nil` | `nil` derives half the pill height — the smallest inset provably safe for content of *any* height. |
+| `alignment` | `.center` | `.firstTextBaseline` when the two sides hold text at different sizes. |
+
+To size the pill to its content, measure the content and feed the result into
+`.fixed(_:)`. There is deliberately no automatic intrinsic mode: the pill width is
+the morph's start point, and a start point that moves as content changes makes the
+morph shift under itself.
+
+## The expanded panel
+
+```swift
+var config = NotchConfiguration.standard
+config.expandedSize = CGSize(width: 400, height: 300)
+config.expandedBottomCornerRadius = 28
+config.expandedTopReserve = .always
+config.expandedContentAlignment = .center
+config.expandedContentInsetsOverride = EdgeInsets(top: 4, leading: 24, bottom: 18, trailing: 24)
+```
+
+### `expandedTopReserve`
+
+The top strip of an open panel sits **behind the physical notch** on a MacBook, so
+anything drawn there is invisible — and invisible only on notched Macs, which is
+how it survives development on an external monitor.
+
+Reserving a row fixes it. Reserving unconditionally wastes space where nothing is
+in the way. So it is a policy:
+
+| Policy | Reserves | For |
+|---|---|---|
+| `.cutoutOnly` *(default)* | pill height, only where a cutout exists | Lists and text. Never wrong; occasionally different between displays. |
+| `.always` | pill height, everywhere | Layouts that must be pixel-identical on every display. |
+| `.fixed(h)` | exactly `h` | A panel whose own header already clears the cutout, or a deliberately larger gap. |
+| `.none` | nothing | Full-bleed artwork, video, a blurred backdrop. |
+
+### Insets
+
+`nil` (the default) derives insets from the corner radii so content always clears
+the silhouette. This matters more than it sounds: a concave top corner makes the
+panel **widest at its very top edge**, tapering inward until the wall settles at
+`x = topRadius`. Content padded by a plain 20pt against a 22pt radius is *outside
+the shape* along the upper flanks and clips — which reads as a rendering glitch,
+not a padding mistake.
+
+Override it when you know better; set it to `.zero` for full-bleed. The container
+clips content to `NotchShape` either way, so you cannot spill outside the
+silhouette — you can only end up with content hidden in the flanks.
+
+### `.canvas`
+
+`NotchConfiguration.canvas` bundles `.none` reserve with zero insets, for artwork
+that reads fine partly occluded:
+
+```swift
+var config = NotchConfiguration.canvas
+config.expandedSize = CGSize(width: 460, height: 190)
+```
+
+Position anything that must be *read* by hand — see `NowPlayingIsland.swift`.
+
+### Full `NotchConfiguration` reference
 
 | Field | Default | Notes |
 |---|---|---|
-| `expandedSize` | 540 × 260 | Also the window size — the window never resizes, so pick the largest panel you will ever show. |
+| `expandedSize` | 540 × 260 | Panel content size. Also drives the window size. |
 | `collapsedWidth` | `.wrapCutout(reserve: 44)` | See above. |
 | `collapsedHitPadding` | 6 | Invisible aiming margin. |
-| `shadowInsetHorizontal` / `Bottom` | 18 / 22 | Transparent room inside the window for the shadow to fall into. |
-| `expandedTopCornerRadius` | 22 | Concave curl. Ignored on displays with no cutout. |
+| `shadowInsetHorizontal` / `Bottom` | 18 / 22 | Transparent room inside the window for the shadow. |
+| `expandedTopCornerRadius` | 22 | Concave curl. Forced to 0 on displays with no cutout. |
 | `expandedBottomCornerRadius` | 22 | Convex fillet. |
 | `expandedContentInsetsOverride` | `nil` | `nil` derives insets that clear the silhouette. |
+| `expandedTopReserve` | `.cutoutOnly` | See above. |
+| `expandedContentAlignment` | `.top` | Where content sits below the reserve. |
 | `expandsOnHover` | `true` | |
 | `hoverOpenDelay` | 0.15s | Filters pointer transits. |
 | `hoverCancelGrace` | 0.10s | Filters pointer jitter at the cutout edge. |
@@ -99,21 +225,74 @@ start point move underneath it.
 | `hapticOnHoverOpen` | `true` | No-op without a Force Touch trackpad. |
 | `pointerSampleInterval` | 0.05s | 20Hz. This monitor runs for your app's whole lifetime. |
 
-Presets: `.standard`, `.clickOnly`, `.statusOnly`, `.standalone(pillWidth:)`.
+Presets: `.standard`, `.clickOnly`, `.statusOnly`, `.canvas`,
+`.standalone(pillWidth:)`.
 
 Both hover delays matter and they do different jobs — see
 [motion.md](motion.md#hover-needs-two-delays).
 
-## `NotchStyle`
+## Indicators: `NotchBars`
+
+A row of bars whose heights animate continuously. Whether that reads as an
+equaliser, a level meter, or a breathing beacon is entirely in the numbers.
 
 ```swift
-let presenter = NotchPresenter(style: .standard)
+NotchBars(.wave(count: 4, low: 0.22, high: 1, period: 0.7))
 ```
+
+| Field | Default | Notes |
+|---|---|---|
+| `levels` | — | Resting height per bar, `0...1`. **Bar count is `levels.count`.** |
+| `peaks` | `nil` | Target height per bar. `nil`, or equal to its level, leaves that bar static. |
+| `barWidth` | 2.5 | |
+| `spacing` | 3 | |
+| `cornerRadius` | `nil` | `nil` gives capsule ends. |
+| `height` | 14 | Height at level `1`, and the view's height. |
+| `period` | 0.9s | One full level → peak → level cycle. |
+| `stagger` | 0.15s | Delay per bar. `0` makes them pump in unison; a small value makes a wave. |
+| `curve` | `.easeInOut` | Also `.linear`, `.easeIn`, `.easeOut`. |
+| `tint` | `.white` | |
+| `label` | `nil` | VoiceOver label. `nil` marks it decorative. |
+
+There is no separate bar-count property on purpose — a count paired with a heights
+array is the kind of thing that silently breaks the first time someone adds a bar.
+
+### No app states in here
+
+NotchKit ships `.steady(_:)` and `.wave(count:...)` — names that describe *shape*.
+It deliberately ships no `.recording`, `.building`, or `.paused`, because those are
+your app's states, and a library that names them makes every consumer either adopt
+one app's vocabulary or fight it.
+
+Define them where the meaning lives:
+
+```swift
+private extension NotchBarsStyle {
+    static func running(tint: Color) -> NotchBarsStyle {
+        wave(count: 4, low: 0.22, high: 1, height: 13, period: 0.7, stagger: 0.11, tint: tint)
+    }
+
+    static func paused(tint: Color) -> NotchBarsStyle {
+        // No peaks, so no animation object is created at all — a paused indicator
+        // should cost nothing, not idle at 60fps.
+        steady([0.55, 0.3, 0.55, 0.3], height: 13, tint: tint)
+    }
+}
+```
+
+`isAnimated` tells you whether a style has anywhere to go, and `level(at:)` /
+`peak(at:)` clamp and bounds-check, so a style assembled from live data (audio
+levels, download progress) degrades to a sensible bar instead of trapping.
+
+Set `label` when the bars are the **only** thing conveying state — a silent
+animation is invisible to a screen reader.
+
+## `NotchStyle`
 
 | Preset | Ink | Use |
 |---|---|---|
 | `.standard` | pure black | Merges with the physical cutout. |
-| `.openIsland` | `#0D0D0F` + cream | Open Island's brand palette; reads as its own surface. |
+| `.warmPaper` | `#0D0D0F` + cream | Reads as its own surface beside the cutout. |
 | `.contrast` | pure black, stronger edge | Legible over bright or busy wallpapers. |
 | `.translucent` | 72% black | Nice over static wallpaper; cannot merge with the cutout. |
 
@@ -132,7 +311,13 @@ var style = NotchStyle.standard
 style.hairline = .white.opacity(0.14)
 style.shadowRadius = 20
 style.foreground = .white
+style.colorScheme = nil   // inherit the system scheme instead of forcing dark
 ```
+
+`colorScheme` defaults to `.dark` because a dark island with Light Mode content is
+the most common way to make text vanish: `.secondary` and every stock control
+resolve to near-black against near-black ink, and only for users who happen to be
+in Light Mode. Set `nil` only if you deliberately built a light island.
 
 ## `NotchMotion`
 
@@ -150,11 +335,30 @@ discomfort. `.reduced` keeps fades and removes every spring and scale.
 
 Full parameter reference and how to design a new set: [motion.md](motion.md).
 
+## Changing everything at runtime
+
+All three value types are `var`s on the presenter. Assign and the island updates:
+
+```swift
+presenter.configuration = otherPreset.configuration   // resizes the window if needed
+presenter.motion = .resolved(otherPreset.motion)
+presenter.style = otherPreset.style
+```
+
+Changing `configuration` to something with a different `expandedSize` repositions
+the window immediately — that is what lets an app swap between differently-sized
+panels without tearing the island down. It is a discrete event, deliberately not
+animated; see [architecture.md](architecture.md#why-the-window-never-resizes) for
+why the window must never animate its own frame.
+
+Keep `.resolved(_:)` in the path when you swap motion, or you will quietly
+re-enable animation for users who turned it off.
+
 ## Custom silhouette
 
-Implement `Shape` with `animatableData` so radii interpolate instead of jump-cutting,
-and clamp against the rect — mid-morph the rect can be far smaller than the radius,
-and un-clamped curves self-intersect into a one-frame flicker.
+Implement `Shape` with `animatableData` so radii interpolate instead of
+jump-cutting, and clamp against the rect — mid-morph the rect can be far smaller
+than the radius, and un-clamped curves self-intersect into a one-frame flicker.
 
 ```swift
 struct SquaredIslandShape: Shape {
@@ -179,24 +383,30 @@ If your shape needs to serve *both* phases, give it a parameter that degenerates
 into the collapsed form the way `NotchShape.topCornerRadius == 0` does. Otherwise
 you are back to swapping shape types, and the transition stops reading as a morph.
 
-## Custom continuous indicator
+## Your own continuous indicator
 
-`NotchActivityBars` is one provided glyph, not the only option. The pattern worth
-copying is *how* it animates: `CAShapeLayer` + `CABasicAnimation` on
-`transform.scale.y`, wrapped in `NSViewRepresentable`.
+`NotchBars` is one component, not the only shape a live indicator can take. When
+you build another, the part worth copying is *how* it animates: `CAShapeLayer` +
+`CABasicAnimation`, wrapped in `NSViewRepresentable`.
 
 A continuous animation driven from SwiftUI (`TimelineView`, or a repeating
 `withAnimation`) re-evaluates the view body every frame, forever, for decoration
 nobody is looking at. Core Animation describes it once and the render server
 interpolates it with zero main-thread work per frame.
 
-Read `Sources/NotchKit/NotchActivityBars.swift` — it is ~100 lines and commented as
-a template. Two things to carry over:
+Read [`Sources/NotchKit/NotchBars.swift`](../Sources/NotchKit/NotchBars.swift) —
+it is short and commented as a template. Four things to carry over:
 
-- Re-arm in `viewDidMoveToWindow()`. Core Animation strips animations from layers
-  that leave the window, so the glyph otherwise freezes after a Space switch.
-- Stagger `beginTime` across sibling layers, or a multi-bar glyph pumps in unison
-  and reads as one block rather than a wave.
+- **Animate a transform, not geometry.** `transform.scale.y` is a pure compositor
+  operation. Animating `path` or `bounds` re-rasterises every frame and gives up
+  most of the win.
+- **Re-arm in `viewDidMoveToWindow()`.** Core Animation strips animations from
+  layers that leave the window, so the glyph otherwise freezes after a Space
+  switch or a window reorder.
+- **Update `contentsScale` in `viewDidChangeBackingProperties()`.** The island
+  follows the pointer between displays, which can mean Retina → non-Retina.
+- **Stagger `beginTime` across sibling layers**, or a multi-part glyph pumps in
+  unison and reads as one block rather than a wave.
 
 Use `TimelineView` only when each frame genuinely needs data SwiftUI owns — a live
 countdown, a waveform from an audio buffer.
@@ -215,11 +425,15 @@ screen-change observer falls back to automatic on its own.
 
 ## What is not configurable, and why
 
-- **Window size.** Fixed at expanded size for the island's whole life. See
+- **The window resizing mid-transition.** The morph happens entirely inside a
+  fixed window; AppKit frame animation and SwiftUI springs use different curves
+  and the mismatch janks. Swapping `configuration` between panels is fine —
+  animating the window frame is not. See
   [architecture.md](architecture.md#why-the-window-never-resizes).
-- **Phase count.** Three states. Every extra phase multiplies the animation matrix,
-  and users cannot perceive many distinct states in a 40pt strip. Add a property
-  your content reads instead.
-- **Panel height per state.** Set `expandedSize` to the largest case and lay content
-  out inside it. For content-driven height, measure with a `PreferenceKey` and size
-  the *content* — see [recipes.md](recipes.md#content-driven-panel-height).
+- **Phase count.** Three states. Every extra phase multiplies the animation
+  matrix, and users cannot perceive many distinct states in a 40pt strip. Add a
+  property your content reads instead.
+- **Panel height per state.** Set `expandedSize` to the largest case and lay
+  content out inside it. For content-driven height, measure with a `PreferenceKey`
+  and size the *content* — see
+  [recipes.md](recipes.md#content-driven-panel-height).

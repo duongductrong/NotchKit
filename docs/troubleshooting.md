@@ -130,7 +130,7 @@ The pending hover timer fired after the click.
 The ink is lifted above pure black. The physical notch is opaque housing that emits
 no light, so anything above `#000000` beside it is visibly lighter. Obvious on real
 hardware, nearly invisible in a screenshot.
-**Fix:** `NotchStyle.standard` (pure black). `.openIsland` is a brand palette, not a
+**Fix:** `NotchStyle.standard` (pure black). `.warmPaper` is a design choice, not a
 hardware match. Translucent ink cannot merge with opaque housing at all.
 
 ### Panel content clips along the upper flanks
@@ -221,7 +221,7 @@ value differs, or you spin an endless layout loop.
 ### Steady CPU use while the island sits idle
 A `TimelineView` or repeating `withAnimation` is re-evaluating the body every
 frame, forever.
-**Fix:** Core Animation for continuous motion. See `NotchActivityBars`.
+**Fix:** Core Animation for continuous motion. See `NotchBars`.
 
 ### Animated glyph freezes after a Space switch or window reorder
 Core Animation strips animations from layers that leave the window.

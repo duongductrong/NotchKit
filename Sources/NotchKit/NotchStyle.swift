@@ -15,10 +15,10 @@ public struct NotchStyle: Equatable, Sendable {
     /// is subtle in a screenshot and obvious on real hardware, which is exactly
     /// why it is easy to ship by accident.
     ///
-    /// Open Island's own source confirms the distinction — it mocks the *physical
-    /// cutout* with `Color.black` while drawing its island in `#0D0D0F`, its brand
-    /// ink. Use `.openIsland` if you want that look; use the default if you want
-    /// the island to disappear into the bezel.
+    /// The choice worth making consciously: an island can either *disappear into*
+    /// the bezel or read as its own surface beside it. Both are good designs —
+    /// pure black gets you the first, `.warmPaper` is there for the second. What
+    /// does not work is aiming for the first and landing a few percent off.
     public var ink: Color
 
     /// Inner hairline along the silhouette.
@@ -46,6 +46,17 @@ public struct NotchStyle: Equatable, Sendable {
     /// Tint for content drawn on the ink.
     public var foreground: Color
 
+    /// Colour scheme forced on your content.
+    ///
+    /// Defaults to `.dark`, because a dark island with Light Mode content in it is
+    /// the most common way to make text vanish: `.secondary` and every stock
+    /// control resolve to near-black against near-black ink, and it only shows up
+    /// for users who happen to be in Light Mode.
+    ///
+    /// Set `nil` to inherit the system scheme — correct if you deliberately built
+    /// a light island (light `ink`, dark `foreground`), and wrong otherwise.
+    public var colorScheme: ColorScheme?
+
     public init(
         ink: Color = .black,
         hairline: Color = Color.white.opacity(0.08),
@@ -53,7 +64,8 @@ public struct NotchStyle: Equatable, Sendable {
         shadowColor: Color = Color.black.opacity(0.45),
         shadowRadius: CGFloat = 14,
         shadowOffsetY: CGFloat = 8,
-        foreground: Color = Color(white: 0.96)
+        foreground: Color = Color(white: 0.96),
+        colorScheme: ColorScheme? = .dark
     ) {
         self.ink = ink
         self.hairline = hairline
@@ -62,6 +74,7 @@ public struct NotchStyle: Equatable, Sendable {
         self.shadowRadius = shadowRadius
         self.shadowOffsetY = shadowOffsetY
         self.foreground = foreground
+        self.colorScheme = colorScheme
     }
 }
 
@@ -75,13 +88,13 @@ public extension NotchStyle {
     /// Merges with the hardware. Pure black ink, near-white content.
     static let standard = NotchStyle()
 
-    /// Open Island's brand palette: `#0D0D0F` ink, `#F1EAD9` warm paper.
+    /// Ink lifted just off black, with warm off-white content.
     ///
-    /// A deliberate design choice rather than a hardware match — the ink sits
-    /// slightly above black and the content is cream instead of white. Reads as
-    /// its own object beside the cutout, which is the point if your island is
-    /// meant to look like a distinct surface.
-    static let openIsland = NotchStyle(
+    /// A deliberate design choice rather than a hardware match: it reads as its
+    /// own surface beside the cutout, which is the point if your island is meant
+    /// to look like an object rather than part of the bezel. Expect a visible
+    /// seam where it meets a real notch — that is the trade, not a bug.
+    static let warmPaper = NotchStyle(
         ink: Color(red: 0x0D / 255, green: 0x0D / 255, blue: 0x0F / 255),
         hairline: Color.white.opacity(0.07),
         foreground: Color(red: 0xF1 / 255, green: 0xEA / 255, blue: 0xD9 / 255)

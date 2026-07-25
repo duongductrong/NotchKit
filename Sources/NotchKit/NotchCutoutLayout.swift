@@ -17,7 +17,7 @@ import SwiftUI
 ///     gutterWidth: presenter.collapsedGutterWidth,
 ///     pillHeight: presenter.geometry.collapsedHeight
 /// ) {
-///     NotchActivityBars(mode: .active, size: 18)
+///     NotchBars(.wave())
 /// } trailing: {
 ///     Text("3")
 /// }
@@ -37,6 +37,13 @@ public struct NotchCutoutLayout<Leading: View, Trailing: View>: View {
     /// provably-safe value — see `resolvedEdgeInset`.
     public var edgeInset: CGFloat?
 
+    /// Vertical placement of both sides within the pill.
+    ///
+    /// `.center` is right for glyphs and single lines. `.firstTextBaseline` is
+    /// what you want when the two sides hold text at different sizes and the
+    /// mismatch is showing.
+    public var alignment: VerticalAlignment
+
     @ViewBuilder public var leading: () -> Leading
     @ViewBuilder public var trailing: () -> Trailing
 
@@ -45,6 +52,7 @@ public struct NotchCutoutLayout<Leading: View, Trailing: View>: View {
         gutterWidth: CGFloat,
         pillHeight: CGFloat,
         edgeInset: CGFloat? = nil,
+        alignment: VerticalAlignment = .center,
         @ViewBuilder leading: @escaping () -> Leading,
         @ViewBuilder trailing: @escaping () -> Trailing
     ) {
@@ -52,6 +60,7 @@ public struct NotchCutoutLayout<Leading: View, Trailing: View>: View {
         self.gutterWidth = gutterWidth
         self.pillHeight = pillHeight
         self.edgeInset = edgeInset
+        self.alignment = alignment
         self.leading = leading
         self.trailing = trailing
     }
@@ -80,7 +89,7 @@ public struct NotchCutoutLayout<Leading: View, Trailing: View>: View {
     public var body: some View {
         let inset = resolvedEdgeInset
 
-        HStack(spacing: 0) {
+        HStack(alignment: alignment, spacing: 0) {
             leading()
                 .frame(width: max(0, gutterWidth - inset), alignment: .leading)
                 .padding(.leading, inset)

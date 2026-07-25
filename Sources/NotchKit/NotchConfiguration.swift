@@ -46,6 +46,17 @@ public struct NotchConfiguration: Equatable, Sendable {
     /// that are guaranteed to clear the silhouette — see `expandedContentInsets`.
     public var expandedContentInsetsOverride: EdgeInsets?
 
+    /// How much of the panel's top is kept clear of the hardware cutout.
+    /// See `NotchExpandedTopReserve` — the policy matters more than the number.
+    public var expandedTopReserve: NotchExpandedTopReserve
+
+    /// Where expanded content sits in the space below the reserve.
+    ///
+    /// `.top` by default because panels grow downward, and content pinned to the
+    /// top does not appear to slide while the surface is still growing. `.center`
+    /// suits a panel whose content is much shorter than `expandedSize`.
+    public var expandedContentAlignment: Alignment
+
     // MARK: Interaction
 
     /// Open on hover, not just click.
@@ -98,6 +109,8 @@ public struct NotchConfiguration: Equatable, Sendable {
         expandedTopCornerRadius: CGFloat = 22,
         expandedBottomCornerRadius: CGFloat = 22,
         expandedContentInsetsOverride: EdgeInsets? = nil,
+        expandedTopReserve: NotchExpandedTopReserve = .cutoutOnly,
+        expandedContentAlignment: Alignment = .top,
         expandsOnHover: Bool = true,
         hoverOpenDelay: TimeInterval = 0.15,
         hoverCancelGrace: TimeInterval = 0.10,
@@ -114,6 +127,8 @@ public struct NotchConfiguration: Equatable, Sendable {
         self.expandedTopCornerRadius = expandedTopCornerRadius
         self.expandedBottomCornerRadius = expandedBottomCornerRadius
         self.expandedContentInsetsOverride = expandedContentInsetsOverride
+        self.expandedTopReserve = expandedTopReserve
+        self.expandedContentAlignment = expandedContentAlignment
         self.expandsOnHover = expandsOnHover
         self.hoverOpenDelay = hoverOpenDelay
         self.hoverCancelGrace = hoverCancelGrace
@@ -140,19 +155,20 @@ public struct NotchConfiguration: Equatable, Sendable {
     /// `y = topRadius`. Below that the panel body is `2 × topRadius` narrower than
     /// its bounding box.
     ///
-    /// Since panel content always starts below the reserved cutout row (taller
-    /// than the radius), it lives entirely in the narrowed region — so content
-    /// padded by a plain 20pt against a 22pt radius is outside the shape and gets
-    /// clipped. It clips only along the upper flanks, which is why it reads as a
-    /// mysterious rendering glitch rather than a padding mistake.
+    /// Whenever `expandedTopReserve` keeps content below that taper — which every
+    /// policy except `.none` does — content lives entirely in the narrowed region,
+    /// so a plain 20pt padding against a 22pt radius is *outside* the shape and
+    /// gets clipped. It clips only along the upper flanks, which is why it reads as
+    /// a mysterious rendering glitch rather than a padding mistake.
     ///
     /// The bottom inset keeps content out of the bottom corner curves. Together
     /// with the horizontal inset it guarantees content stays inside the path at
     /// every point.
     ///
-    /// The reference implementation lands in the same place from the other
-    /// direction: 46pt of horizontal header padding when notch-aware, 18pt when
-    /// not — roughly `2 × radius` versus a plain margin.
+    /// Sanity-check the output rather than trusting the formula: at the default
+    /// 22pt radius this yields a 30pt horizontal inset, and a flat-topped panel
+    /// (radius 0) yields 20pt. Both are where you would have put a margin by eye.
+    /// The derivation only earns its keep because guessing fails invisibly.
     public var expandedContentInsets: EdgeInsets {
         if let expandedContentInsetsOverride {
             return expandedContentInsetsOverride
@@ -199,6 +215,20 @@ public extension NotchConfiguration {
         expandedSize: CGSize(width: 380, height: 96),
         expandsOnHover: false,
         collapsesOnPointerExit: false
+    )
+
+    /// Full-bleed: content owns the entire panel, cutout included, with no
+    /// padding at all.
+    ///
+    /// For artwork, a video frame, or a blurred backdrop — anything that reads
+    /// fine partly occluded. The container still clips to `NotchShape`, so a
+    /// full-bleed fill picks up the concave corners for free; what you take on is
+    /// *placement*. Content in the top strip is hidden behind the cutout and
+    /// content in the upper flanks is outside the taper, so position anything that
+    /// must be read by hand.
+    static let canvas = NotchConfiguration(
+        expandedContentInsetsOverride: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0),
+        expandedTopReserve: .none
     )
 
     /// For displays with no hardware cutout, where wrapping a *simulated* notch

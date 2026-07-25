@@ -139,19 +139,29 @@ A complete runnable app is in [`Examples/NotchDemo`](Examples/NotchDemo).
 
 ## Customization
 
-Nothing about the content is fixed. Both slots are plain `@ViewBuilder`s, so the
-pill and the panel can contain anything — icons, counters, progress, artwork,
-controls, or nothing at all. The icon-and-counter in the example above is just an
-example.
+Nothing about the content is fixed. There are three slots — left of the cutout,
+right of the cutout, and the expanded panel — and all three are plain
+`@ViewBuilder`s. Icons, counters, progress, artwork, controls, a whole interface,
+or nothing at all. The icon-and-counter above is an example, not a contract.
 
 Everything else is a value type you can swap wholesale or tweak field by field:
 
 | Type | Controls | Presets |
 |---|---|---|
-| `NotchConfiguration` | Sizes, hit target, hover policy, corner radii, content insets | `.standard`, `.clickOnly`, `.statusOnly`, `.standalone(pillWidth:)` |
+| `NotchConfiguration` | Panel size, pill width, hit target, hover policy, radii, insets, top reserve, content alignment | `.standard`, `.clickOnly`, `.statusOnly`, `.canvas`, `.standalone(pillWidth:)` |
 | `NotchMotion` | Every curve, delay, and scale | `.standard`, `.crisp`, `.playful`, `.reduced` |
-| `NotchStyle` | Ink, hairline, shadow, foreground | `.standard`, `.openIsland`, `.contrast`, `.translucent` |
+| `NotchStyle` | Ink, hairline, shadow, foreground, colour scheme | `.standard`, `.warmPaper`, `.contrast`, `.translucent` |
 | `NotchCollapsedWidth` | Whether the pill wraps the cutout or takes a fixed width | `.wrapCutout(reserve:)`, `.fixed(_:)` |
+| `NotchExpandedTopReserve` | How much of the panel stays clear of the cutout | `.cutoutOnly`, `.always`, `.fixed(_:)`, `.none` |
+| `NotchBarsStyle` | Bar count, sizes, levels, peaks, period, stagger, curve, tint | `.steady(_:)`, `.wave(count:…)` |
+
+All three are `var`s on the presenter, so an app can swap a whole look at runtime —
+the window resizes itself when the panel size changes.
+
+**[`Examples/NotchDemo`](Examples/NotchDemo) ships three islands** that share no
+content code: a wide build-status panel, a narrow drop shelf with real file drops,
+and a full-bleed now-playing card. Each is one `IslandPreset` value; adding a
+fourth needs no library changes. That is the pattern to copy.
 
 ```swift
 var config = NotchConfiguration.standard

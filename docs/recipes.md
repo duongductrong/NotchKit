@@ -96,7 +96,7 @@ struct ProgressCollapsed: View {
 ```
 
 For indeterminate progress use a `CABasicAnimation` on a layer, not a repeating
-SwiftUI animation — the same reasoning as `NotchActivityBars`.
+SwiftUI animation — the same reasoning as `NotchBars`.
 
 ## Media controller
 

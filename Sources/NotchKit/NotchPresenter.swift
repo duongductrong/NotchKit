@@ -22,7 +22,19 @@ public final class NotchPresenter {
     /// on display hotplug, sleep/wake, and arrangement changes.
     public private(set) var geometry: NotchGeometry
 
-    public var configuration: NotchConfiguration
+    /// Mutable at runtime. Anything that changes the window's size repositions it
+    /// immediately, which is what lets an app swap between differently-sized
+    /// panels without tearing the island down and rebuilding it. Every other field
+    /// is picked up on the next render.
+    public var configuration: NotchConfiguration {
+        didSet {
+            let height = geometry.collapsedHeight
+            guard configuration.windowSize(collapsedHeight: height)
+                != oldValue.windowSize(collapsedHeight: height) else { return }
+            refreshPlacement()
+        }
+    }
+
     public var motion: NotchMotion
     public var style: NotchStyle
 

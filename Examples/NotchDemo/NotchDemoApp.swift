@@ -1,23 +1,90 @@
 import AppKit
+import Foundation
 import SwiftUI
 import NotchKit // remove this line if you copied NotchKit into your app target
 
-// A complete island app. Everything below is content — NotchKit handles the
-// window, the silhouette, the hit testing, and the motion.
+// A complete island app that hosts three completely different islands.
 //
-// Run it with `swift run NotchDemo`, then move the pointer to the notch.
+// Run it with `swift run NotchDemo`, move the pointer to the notch, then use the
+// buttons in the panel to switch presets. Watch the window resize, the ink
+// change, and the springs retime — all by assigning to `presenter`.
+//
+// The shell below is deliberately tiny. Everything that makes an island *look
+// like something* lives in `IslandPreset` values: VibeCodeIsland.swift,
+// DropNotchIsland.swift, NowPlayingIsland.swift.
 
 // MARK: - Model
 
 @MainActor
 @Observable
 final class DemoModel {
-    var tasks: [String] = ["Indexing workspace", "Running tests"]
-    var isWorking = true
 
-    var activityMode: NotchActivityBars.Mode {
-        if tasks.isEmpty { return .idle }
-        return isWorking ? .active : .paused
+    /// Held so content can read live geometry and drive the island. NotchKit does
+    /// not retain you, so something has to own this — see `AppDelegate`.
+    let presenter: NotchPresenter
+
+    private(set) var presetIndex = 0
+    var preset: IslandPreset { IslandPreset.all[presetIndex] }
+
+    // Vibe Code
+    var steps: [Step] = [
+        Step(title: "Indexing workspace", state: .done),
+        Step(title: "Running tests", state: .running),
+        Step(title: "Reviewing diff", state: .queued),
+    ]
+    var isRunning = true
+    var completedSteps: Int { steps.filter { $0.state == .done }.count }
+
+    // Drop Notch
+    var files: [String] = []
+    var isDropTargeted = false
+
+    // Now Playing
+    var track = Track(title: "Midnight Bezel", artist: "The Cutouts")
+    var isPlaying = true
+
+    init(presenter: NotchPresenter) {
+        self.presenter = presenter
+    }
+
+    // MARK: Preset switching
+
+    /// Swapping a preset onto a live presenter is an ordinary thing to do. The
+    /// window repositions itself when `configuration` changes size, and style and
+    /// motion are picked up on the next render — no reinstall, no teardown, no
+    /// flicker. Content follows because the slot closures read `preset`, and
+    /// `presetIndex` is observed.
+    func select(_ index: Int) {
+        guard IslandPreset.all.indices.contains(index) else { return }
+        presetIndex = index
+        presenter.configuration = preset.configuration
+        // `.resolved` keeps Reduce Motion honoured across the swap; passing the
+        // preset's curves raw would quietly re-enable animation for users who
+        // turned it off.
+        presenter.motion = .resolved(preset.motion)
+        presenter.style = preset.style
+    }
+
+    // MARK: Mutations
+
+    func addStep() {
+        steps.append(Step(title: "Step \(steps.count + 1)", state: .queued))
+    }
+
+    func addFiles(_ urls: [URL]) {
+        files.append(contentsOf: urls.map(\.lastPathComponent))
+    }
+
+    struct Step: Identifiable, Hashable {
+        enum State: Hashable { case done, running, queued }
+        let id = UUID()
+        var title: String
+        var state: State
+    }
+
+    struct Track: Hashable {
+        var title: String
+        var artist: String
     }
 }
 
@@ -31,29 +98,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Hold both strongly: the presenter owns the window, and nothing else
     // retains it. Let it go and the island silently disappears.
-    private let model = DemoModel()
     private var presenter: NotchPresenter?
+    private var model: DemoModel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        var configuration = NotchConfiguration.standard
-        configuration.expandedSize = CGSize(width: 520, height: 240)
+        let first = IslandPreset.all[0]
 
         let presenter = NotchPresenter(
-            configuration: configuration,
+            configuration: first.configuration,
             // `nil` would also resolve Reduce Motion for us; passing it
             // explicitly documents the intent.
-            motion: .resolved(.standard),
-            style: .standard
+            motion: .resolved(first.motion),
+            style: first.style
         )
+        let model = DemoModel(presenter: presenter)
         self.presenter = presenter
+        self.model = model
 
         presenter.install(
-            collapsed: { [model] in
-                CollapsedBar(model: model, presenter: presenter)
-            },
-            expanded: { [model] in
-                ExpandedPanel(model: model, presenter: presenter)
-            }
+            collapsed: { CollapsedShell(model: model) },
+            expanded: { ExpandedShell(model: model) }
         )
     }
 }
@@ -72,104 +136,5 @@ enum NotchDemo {
         app.setActivationPolicy(.accessory)
         app.run()
         _ = delegate
-    }
-}
-
-// MARK: - Collapsed
-
-/// Content for the resting pill.
-///
-/// `NotchCutoutLayout` keeps everything clear of the hardware cutout. Drop it
-/// and the centre of this bar becomes invisible on any MacBook.
-struct CollapsedBar: View {
-    let model: DemoModel
-    let presenter: NotchPresenter
-
-    var body: some View {
-        NotchCutoutLayout(
-            cutoutWidth: presenter.geometry.hasPhysicalNotch ? presenter.geometry.notchWidth : 0,
-            gutterWidth: presenter.collapsedGutterWidth,
-            // Lets the layout derive an edge inset that clears the pill's
-            // semicircular corners for content of any height.
-            pillHeight: presenter.geometry.collapsedHeight
-        ) {
-            NotchActivityBars(
-                mode: model.activityMode,
-                size: 18,
-                tint: presenter.style.foreground
-            )
-        } trailing: {
-            if !model.tasks.isEmpty {
-                Text("\(model.tasks.count)")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-            }
-        }
-    }
-}
-
-// MARK: - Expanded
-
-struct ExpandedPanel: View {
-    let model: DemoModel
-    let presenter: NotchPresenter
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Activity")
-                    .font(.system(size: 13, weight: .semibold))
-                Spacer()
-                Text(model.isWorking ? "Working" : "Paused")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-            }
-
-            if model.tasks.isEmpty {
-                Text("Nothing running")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(model.tasks, id: \.self) { task in
-                        HStack(spacing: 8) {
-                            Circle()
-                                .fill(model.isWorking ? Color.green : Color.orange)
-                                .frame(width: 6, height: 6)
-                            Text(task).font(.system(size: 12))
-                            Spacer()
-                        }
-                        .frame(height: 28)
-
-                        if task != model.tasks.last {
-                            Divider().opacity(0.15)
-                        }
-                    }
-                }
-                // Content inside an open panel eases; it never springs.
-                // Overshoot under text makes the text hard to read.
-                .animation(presenter.motion.contentMorph, value: model.tasks)
-            }
-
-            Spacer(minLength: 0)
-
-            HStack(spacing: 8) {
-                Button(model.isWorking ? "Pause" : "Resume") {
-                    model.isWorking.toggle()
-                }
-                Button("Add task") {
-                    model.tasks.append("Task \(model.tasks.count + 1)")
-                }
-                Spacer()
-                Button("Close") { presenter.collapse() }
-            }
-            .buttonStyle(.plain)
-            .font(.system(size: 12, weight: .medium))
-        }
-        // No padding here on purpose. The container applies
-        // `configuration.expandedContentInsets`, which are derived from the corner
-        // radii so content cannot clip against the concave side walls. Padding it
-        // again by hand is how you end up with a cramped panel.
     }
 }
