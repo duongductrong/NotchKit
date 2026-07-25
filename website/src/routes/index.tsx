@@ -20,7 +20,7 @@ function Nav() {
 						NotchKit
 					</span>
 					<span className="rounded-full border border-border bg-muted/80 px-2 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
-						v1.0.0
+						v1.1.0
 					</span>
 				</div>
 				<div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -68,7 +68,7 @@ function Hero() {
 			<CodeBlock
 				className="mt-10 w-full max-w-xl text-left"
 				filename="Package.swift"
-				code={`.package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.0.0")`}
+				code={`.package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.1.0")`}
 			/>
 			<p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
 				The island above is live — hover it, click it, or
@@ -710,28 +710,28 @@ function EnumCards() {
 function PresetsShowcase() {
 	const islands = [
 		{
-			name: "Build status",
+			name: "Vibe Code",
 			file: "VibeCodeIsland.swift",
 			description:
-				"Watches a build and peeks when it finishes — the island as an ambient status light.",
-			leading: "waveform",
-			trailing: "3 tasks",
-		},
-		{
-			name: "Drop shelf",
-			file: "DropNotchIsland.swift",
-			description:
-				"Drag files onto the notch; the panel opens as a staging shelf for the next app.",
-			leading: "tray",
-			trailing: "2 files",
+				"AI coding agent with interactive permission prompt cards, subagent status list, and walking pixel cat indicator.",
+			leading: "pixel cat",
+			trailing: "3/4 tasks",
 		},
 		{
 			name: "Now playing",
 			file: "NowPlayingIsland.swift",
 			description:
-				"Live equalizer bars while music plays; opens into artwork, transport, and a scrubber.",
-			leading: "bars",
+				"Native macOS Apple Music style player with album artwork, transport controls, and dynamic scrubber.",
+			leading: "artwork",
 			trailing: "2:41",
+		},
+		{
+			name: "Morph inspector",
+			file: "MorphInspectorIsland.swift",
+			description:
+				"Interactive geometry morph inspector with live cutout inset, corner radii, and motion tokens visualization.",
+			leading: "pixel grid",
+			trailing: "morph",
 		},
 	];
 	return (
