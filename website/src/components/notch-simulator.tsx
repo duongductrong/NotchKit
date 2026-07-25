@@ -17,7 +17,7 @@ const CLOSE_SPRING = { stiffness: 260, damping: 34 };
 
 type SpringConfig = { stiffness: number; damping: number };
 
-function useSpringValue(target: number, config: SpringConfig) {
+export function useSpringValue(target: number, config: SpringConfig) {
 	const [value, setValue] = useState(target);
 	const state = useRef({ x: target, v: 0 });
 	const configRef = useRef(config);
@@ -94,7 +94,7 @@ function EqualizerBars({ className }: { className?: string }) {
 function ExpandedPanelContent({ opacity }: { opacity: number }) {
 	return (
 		<div
-			className="flex h-full flex-col justify-end gap-4 p-6 pt-12"
+			className="flex h-full flex-col justify-between px-9 pb-[30px] pt-[58px]"
 			style={{ opacity }}
 		>
 			<div className="flex items-center gap-4">

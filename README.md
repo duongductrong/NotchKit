@@ -186,6 +186,7 @@ Full reference, plus custom shapes and indicators: **[docs/customization.md](doc
 | [Architecture](docs/architecture.md) | The layer split, why the window never resizes, coordinate spaces |
 | [Motion](docs/motion.md) | Spring parameters explained, the curve table, designing a new motion set |
 | [Recipes](docs/recipes.md) | Notification island, progress, media controller, multi-display, hotkeys |
+| [MorphSection](docs/morph-section.md) | Inspecting sub-elements, missions, parameters, and interactive controls |
 | [Troubleshooting](docs/troubleshooting.md) | ~40 symptom → cause → fix entries |
 
 ## Requirements

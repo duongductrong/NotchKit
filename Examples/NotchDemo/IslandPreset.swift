@@ -40,6 +40,7 @@ struct IslandPreset: Identifiable {
     let expanded: @MainActor (DemoModel) -> AnyView
 
     static var all: [IslandPreset] {
-        [.vibeCode, .dropNotch, .nowPlaying]
+        [.morphInspector, .vibeCode, .dropNotch, .nowPlaying]
     }
 }
+

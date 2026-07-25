@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { type Arg, ArgTable } from "#/components/arg-table";
 import { CodeBlock } from "#/components/code-block";
-import { MorphLoop, NotchSimulator } from "#/components/notch-simulator";
+import { MorphExplorer } from "#/components/morph-explorer";
+import { NotchSimulator } from "#/components/notch-simulator";
 import { Card, Section } from "#/components/section";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -12,11 +13,16 @@ const DOCS = "https://github.com/duongductrong/NotchKit/tree/master/docs";
 
 function Nav() {
 	return (
-		<header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
+		<header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md">
 			<nav className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-6">
-				<span className="text-sm font-semibold tracking-tight text-foreground">
-					NotchKit
-				</span>
+				<div className="flex items-center gap-2">
+					<span className="text-sm font-semibold tracking-tight text-foreground">
+						NotchKit
+					</span>
+					<span className="rounded-full border border-border bg-muted/80 px-2 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
+						v1.0.0
+					</span>
+				</div>
 				<div className="flex items-center gap-6 text-sm text-muted-foreground">
 					<a href={DOCS} className="transition-colors hover:text-foreground">
 						Docs
@@ -82,20 +88,13 @@ function MorphSection() {
 					A cross-fade always reads as a <em>switch</em>: at no instant is there
 					a single object changing form. NotchKit keeps everything to one{" "}
 					<code className="text-foreground">NotchShape</code> — a zero top
-					corner radius degenerates into exactly the collapsed pill, so the
-					whole transition is four interpolating numbers on a single shape.
+					corner radius degenerates into exactly the collapsed pill. Hover the
+					elements to see where each one lives on the shape, and tune the knobs
+					to feel the parameters.
 				</>
 			}
 		>
-			<Card className="flex flex-col items-center gap-4 py-10">
-				<MorphLoop />
-				<div className="flex flex-wrap justify-center gap-x-8 gap-y-2 font-mono text-xs text-muted-foreground">
-					<span>topCornerRadius: 0 → 22</span>
-					<span>bottomCornerRadius: 19 → 22</span>
-					<span>width: 278 → 440</span>
-					<span>height: 38 → 230</span>
-				</div>
-			</Card>
+			<MorphExplorer />
 		</Section>
 	);
 }

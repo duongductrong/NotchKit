@@ -7,6 +7,7 @@
 | [Architecture](architecture.md) | Before modifying NotchKit itself, or when something janks and you need to know why. |
 | [Motion](motion.md) | Tuning curves, or designing a motion set from scratch. |
 | [Recipes](recipes.md) | Notification islands, progress, media controllers, multi-display, hotkeys. |
+| [MorphSection](morph-section.md) | Inspecting sub-elements, missions, parameters, and interactive controls. |
 | [Troubleshooting](troubleshooting.md) | Anything is wrong. ~45 symptom → cause → fix entries. |
 
 ## The short version
