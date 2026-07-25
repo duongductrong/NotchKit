@@ -80,32 +80,108 @@ extension IslandPreset {
         configuration: {
             var configuration = NotchConfiguration.standard
             configuration.expandedSize = CGSize(width: 580, height: 320)
-            configuration.collapsedWidth = .wrapCutout(reserve: 50)
+            configuration.collapsedWidth = .wrapCutout(reserve: 44)
             return configuration
         }(),
         motion: .playful,
         style: .standard,
-        collapsedLeading: { _ in
-            AnyView(
-                HStack(spacing: 5) {
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(Color.cyan)
-                    Text("Inspector")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
-            )
-        },
-        collapsedTrailing: { _ in
-            AnyView(
-                Text("7 Elements")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundStyle(Color.cyan)
-            )
-        },
+        collapsedLeading: { _ in AnyView(MorphInspectorLeading()) },
+        collapsedTrailing: { _ in AnyView(MorphInspectorTrailing()) },
         expanded: { model in AnyView(MorphInspectorPanel(model: model)) }
     )
+}
+
+// MARK: - Collapsed Leading 6x6 Pixel Matrix
+
+private struct MorphInspectorLeading: View {
+    @State private var pulsePhase = false
+
+    // 6x6 pixel opacity map
+    private let matrix: [[Double]] = [
+        [0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+        [0.9, 0.2, 0.2, 0.2, 0.2, 0.9],
+        [0.9, 0.2, 0.8, 0.8, 0.2, 0.9],
+        [0.9, 0.2, 0.8, 0.8, 0.2, 0.9],
+        [0.7, 0.9, 0.2, 0.2, 0.9, 0.7],
+        [0.3, 0.7, 0.9, 0.9, 0.7, 0.3]
+    ]
+
+    var body: some View {
+        VStack(spacing: 0.8) {
+            ForEach(0..<6, id: \.self) { row in
+                HStack(spacing: 0.8) {
+                    ForEach(0..<6, id: \.self) { col in
+                        let active = isPixelActive(row: row, col: col)
+                        RoundedRectangle(cornerRadius: 0.4)
+                            .fill(
+                                active
+                                    ? Color(red: 0.65, green: 0.95, blue: 0.2)
+                                    : Color.white.opacity(matrix[row][col])
+                            )
+                            .frame(width: 1.5, height: 1.5)
+                    }
+                }
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) {
+                pulsePhase = true
+            }
+        }
+    }
+
+    private func isPixelActive(row: Int, col: Int) -> Bool {
+        if pulsePhase {
+            return (row == 2 && col == 2) || (row == 3 && col == 3)
+        } else {
+            return (row == 2 && col == 3) || (row == 3 && col == 2)
+        }
+    }
+}
+
+// MARK: - Collapsed Trailing Animated Widget
+
+private struct MorphInspectorTrailing: View {
+    @State private var isAnimating = false
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Text("7")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(Color(white: 0.9))
+
+            // Animated pixel bars with green/yellow lighting
+            HStack(spacing: 2) {
+                ForEach(0..<3, id: \.self) { index in
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.65, green: 0.95, blue: 0.2), // Lime Green
+                                    Color(red: 0.98, green: 0.85, blue: 0.15) // Amber Yellow
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: 2.5, height: isAnimating ? 12 : 5)
+                        .opacity(isAnimating ? 1.0 : 0.45)
+                        .shadow(color: Color(red: 0.7, green: 0.95, blue: 0.2).opacity(0.6), radius: 2)
+                        .animation(
+                            .easeInOut(duration: 0.55)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.18),
+                            value: isAnimating
+                        )
+                }
+            }
+            .frame(height: 12, alignment: .center)
+        }
+        .onAppear {
+            isAnimating = true
+        }
+    }
 }
 
 // MARK: - Expanded Panel View
@@ -125,7 +201,7 @@ private struct MorphInspectorPanel: View {
             HStack {
                 Label("MorphSection Inspector", systemImage: "sparkles")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(Color.cyan)
+                    .foregroundStyle(.primary)
 
                 Spacer()
 
@@ -151,11 +227,11 @@ private struct MorphInspectorPanel: View {
                             .padding(.vertical, 5)
                             .background(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(activeElement.id == elem.id ? Color.cyan.opacity(0.25) : Color.white.opacity(0.06))
+                                    .fill(activeElement.id == elem.id ? Color.white.opacity(0.18) : Color.white.opacity(0.06))
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(activeElement.id == elem.id ? Color.cyan : Color.clear, lineWidth: 1)
+                                    .stroke(activeElement.id == elem.id ? Color.white.opacity(0.4) : Color.clear, lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)
@@ -170,64 +246,66 @@ private struct MorphInspectorPanel: View {
                 }
             }
 
-            // Detailed Card
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 3) {
+            // Detailed Card (Scrollable when height limit reached)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: 6) {
+                                Image(systemName: activeElement.icon)
+                                    .foregroundStyle(.primary)
+                                Text(activeElement.name)
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                            Text(activeElement.mission)
+                                .font(.system(size: 11))
+                                .foregroundStyle(.white.opacity(0.85))
+                        }
+                        Spacer()
+                        Text("MISSION")
+                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.white.opacity(0.12)))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Divider().background(Color.white.opacity(0.1))
+
+                    // Arguments & Parameters
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Arguments & Parameters:")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.secondary)
+
                         HStack(spacing: 6) {
-                            Image(systemName: activeElement.icon)
-                                .foregroundStyle(Color.cyan)
-                            Text(activeElement.name)
-                                .font(.system(size: 14, weight: .semibold))
+                            ForEach(activeElement.parameters, id: \.self) { param in
+                                Text(param)
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 3)
+                                    .background(RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.08)))
+                                    .foregroundStyle(.white.opacity(0.9))
+                            }
                         }
-                        Text(activeElement.mission)
-                            .font(.system(size: 11))
-                            .foregroundStyle(.white.opacity(0.85))
                     }
-                    Spacer()
-                    Text("MISSION")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.cyan.opacity(0.2)))
-                        .foregroundStyle(Color.cyan)
-                }
 
-                Divider().background(Color.white.opacity(0.1))
-
-                // Arguments & Parameters
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Arguments & Parameters:")
-                        .font(.system(size: 10, weight: .semibold))
+                    Text(activeElement.details)
+                        .font(.system(size: 10))
                         .foregroundStyle(.secondary)
-
-                    HStack(spacing: 6) {
-                        ForEach(activeElement.parameters, id: \.self) { param in
-                            Text(param)
-                                .font(.system(size: 10, design: .monospaced))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.08)))
-                                .foregroundStyle(Color.cyan.opacity(0.9))
-                        }
-                    }
                 }
-
-                Text(activeElement.details)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.black.opacity(0.4))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
             }
-            .padding(10)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.black.opacity(0.4))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
-                    )
-            )
-
-            Spacer(minLength: 0)
+            .frame(maxHeight: .infinity)
         }
+        .padding(.bottom, 32)
     }
 }

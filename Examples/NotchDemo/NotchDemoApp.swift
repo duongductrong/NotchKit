@@ -11,7 +11,7 @@ import SwiftUI
 //
 // The shell below is deliberately tiny. Everything that makes an island *look
 // like something* lives in `IslandPreset` values: VibeCodeIsland.swift,
-// DropNotchIsland.swift, NowPlayingIsland.swift.
+// NowPlayingIsland.swift.
 
 // MARK: - Model
 
@@ -29,18 +29,33 @@ final class DemoModel {
 
     /// Vibe Code
     var steps: [Step] = [
-        Step(title: "Indexing workspace", state: .done),
-        Step(title: "Running tests", state: .running),
-        Step(title: "Reviewing diff", state: .queued),
+        Step(title: "Indexing workspace & dependencies", state: .done),
+        Step(title: "Analyzing codebase architecture", state: .done),
+        Step(title: "Executing command & lint checks", state: .running),
+        Step(title: "Reviewing diff & commit state", state: .queued),
     ]
     var isRunning = true
+    var permissionRequested = true
+
     var completedSteps: Int {
         steps.filter { $0.state == .done }.count
     }
 
-    // Drop Notch
-    var files: [String] = []
-    var isDropTargeted = false
+    func grantPermission() {
+        permissionRequested = false
+        isRunning = true
+        if let index = steps.firstIndex(where: { $0.state == .running }) {
+            steps[index].state = .done
+            if index + 1 < steps.count {
+                steps[index + 1].state = .running
+            }
+        }
+    }
+
+    func denyPermission() {
+        permissionRequested = false
+        isRunning = false
+    }
 
     // Now Playing
     var track = Track(title: "Midnight Bezel", artist: "The Cutouts")
@@ -72,10 +87,6 @@ final class DemoModel {
 
     func addStep() {
         steps.append(Step(title: "Step \(steps.count + 1)", state: .queued))
-    }
-
-    func addFiles(_ urls: [URL]) {
-        files.append(contentsOf: urls.map(\.lastPathComponent))
     }
 
     struct Step: Identifiable, Hashable {

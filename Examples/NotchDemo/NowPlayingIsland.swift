@@ -16,78 +16,161 @@ extension IslandPreset {
         id: "now-playing",
         name: "Now Playing",
         configuration: {
-            var configuration = NotchConfiguration.canvas
-            configuration.expandedSize = CGSize(width: 460, height: 190)
-            configuration.collapsedWidth = .wrapCutout(reserve: 40)
-            configuration.expandedBottomCornerRadius = 26
+            var configuration = NotchConfiguration.standard
+            configuration.expandedSize = CGSize(width: 480, height: 195)
+            configuration.collapsedWidth = .wrapCutout(reserve: 44)
+            configuration.expandedBottomCornerRadius = 24
             return configuration
         }(),
         motion: .crisp,
-        style: .contrast,
+        style: .standard,
         collapsedLeading: { model in
             AnyView(
                 Image(systemName: model.isPlaying ? "waveform" : "pause.fill")
                     .font(.system(size: 11, weight: .medium))
                     .symbolEffect(.variableColor.iterative, isActive: model.isPlaying)
+                    .foregroundStyle(Color(white: 0.9))
             )
         },
         collapsedTrailing: { _ in
             AnyView(
                 Image(systemName: "airpodspro")
                     .font(.system(size: 11, weight: .medium))
-                    .opacity(0.75)
+                    .opacity(0.85)
             )
         },
         expanded: { model in AnyView(NowPlayingPanel(model: model)) }
     )
 }
 
+// MARK: - Native Expanded View
+
 private struct NowPlayingPanel: View {
     let model: DemoModel
+    @State private var progress: Double = 0.42
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Full-bleed artwork stand-in. Runs edge to edge and under the cutout,
-            // which is the point of `.canvas`.
-            LinearGradient(
-                colors: [
-                    Color(red: 0.18, green: 0.10, blue: 0.42),
-                    Color(red: 0.66, green: 0.16, blue: 0.36),
-                    Color(red: 0.95, green: 0.45, blue: 0.20),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        VStack(spacing: 12) {
+            // Track Header: Album Art, Info & Output Device
+            HStack(spacing: 12) {
+                // Album Art Box
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.22, green: 0.12, blue: 0.38),
+                                    Color(red: 0.10, green: 0.14, blue: 0.28)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
 
-            // Scrim so text stays legible over any artwork. Without it, light
-            // album art and white type collide.
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.75)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
+                    Image(systemName: "music.note")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(Color(white: 0.85))
+                }
+                .frame(width: 44, height: 44)
 
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(model.track.title)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.primary)
+
                     Text(model.track.artist)
                         .font(.system(size: 12))
-                        .opacity(0.75)
+                        .foregroundStyle(.secondary)
                 }
+
+                Spacer(minLength: 0)
+
+                // AirPlay / AirPods Indicator
+                HStack(spacing: 4) {
+                    Image(systemName: "airpodspro")
+                        .font(.system(size: 11))
+                    Text("AirPods Pro")
+                        .font(.system(size: 10, weight: .medium))
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(Color.white.opacity(0.08)))
+            }
+
+            // Scrubber Bar & Timers
+            VStack(spacing: 5) {
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(height: 4)
+
+                        Capsule()
+                            .fill(Color.white)
+                            .frame(width: max(0, geo.size.width * progress), height: 4)
+                    }
+                }
+                .frame(height: 4)
+
+                HStack {
+                    Text("1:42")
+                    Spacer()
+                    Text("-2:15")
+                }
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(.secondary)
+            }
+
+            // Transport Controls
+            HStack(spacing: 24) {
+                Button {} label: {
+                    Image(systemName: "shuffle")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+
                 Spacer()
+
+                Button {} label: {
+                    Image(systemName: "backward.fill")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(.plain)
+
                 Button {
                     model.isPlaying.toggle()
                 } label: {
-                    Image(systemName: model.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 26))
+                    Image(systemName: model.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white))
+                        .foregroundStyle(.black)
+                }
+                .buttonStyle(.plain)
+
+                Button {} label: {
+                    Image(systemName: "forward.fill")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                Button {} label: {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             }
-            // Hand-placed, because `.canvas` deliberately gave up the derived
-            // insets. Clearing the bottom corner radius is now this view's job.
-            .padding(.horizontal, 26)
-            .padding(.bottom, 22)
+            .foregroundStyle(Color(white: 0.9))
         }
+        .padding(.bottom, 32)
     }
 }

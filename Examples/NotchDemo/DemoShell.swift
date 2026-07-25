@@ -40,12 +40,19 @@ struct ExpandedShell: View {
     let model: DemoModel
 
     var body: some View {
+        let insets = model.preset.configuration.expandedContentInsets
+        // NotchContainer already applies `expandedContentInsets` around this view
+        // when `insets.leading > 0`. For `.canvas` (insets.leading == 0), PresetSwitcher
+        // applies its own insets to stay clear of the edge.
+        let horizontalPadding: CGFloat = insets.leading > 0 ? 0 : 26
+        let bottomPadding: CGFloat = insets.bottom > 0 ? 0 : 16
+
         model.preset.expanded(model)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .overlay(alignment: .bottom) {
                 PresetSwitcher(model: model)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 10)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.bottom, bottomPadding)
             }
     }
 }
@@ -59,8 +66,8 @@ struct PresetSwitcher: View {
                 Button(preset.name) { model.select(index) }
                     .buttonStyle(.plain)
                     .font(.system(size: 10, weight: .medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 4.5)
                     .background(
                         Capsule().fill(
                             Color.white.opacity(index == model.presetIndex ? 0.20 : 0.07)
@@ -73,7 +80,7 @@ struct PresetSwitcher: View {
             Button("Close") { model.presenter.collapse() }
                 .buttonStyle(.plain)
                 .font(.system(size: 10, weight: .medium))
-                .opacity(0.6)
+                .opacity(0.65)
         }
     }
 }
