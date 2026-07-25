@@ -247,6 +247,16 @@ mixed comparison fails.
 **Fix:** write the expected value as a plain literal (`== 316`), or force
 `CGFloat` in the expression.
 
+### "Revision ... for version 1.0.0 does not match previously recorded value"
+The tag moved. SwiftPM records version → commit on first resolve (trust on first
+use) and refuses a different commit for a version it has already seen, so the
+error names the new revision while the stale mapping is the actual cause. Clearing
+`~/.swiftpm/cache` and `Package.resolved` does *not* help — the record lives in a
+separate fingerprint store.
+**Fix:** delete `~/Library/org.swift.swiftpm/security/fingerprints/<package>-*.json`,
+then resolve again. Better, do not move a published tag: cut a new patch version
+instead, because every consumer that already resolved the old one hits this.
+
 ### "Call to main actor-isolated initializer in a synchronous nonisolated context"
 A `@MainActor` type initialised from a stored property of a non-isolated class.
 **Fix:** mark the owning class (e.g. your `NSApplicationDelegate`) `@MainActor`.
