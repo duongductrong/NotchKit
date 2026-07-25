@@ -18,7 +18,7 @@
 
 ---
 
-**NotchKit** builds Dynamic-Island-style overlays for the MacBook notch in SwiftUI.
+**NotchKit** turns the MacBook notch into an interactive Dynamic Island in SwiftUI.
 An island rests as a pill against the screen edge and **morphs** open on hover or
 click — one shape whose width, height, and corner radii animate together, rather
 than two views cross-fading into each other.

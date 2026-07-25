@@ -15,12 +15,12 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "NotchKit — Dynamic Island overlays for the MacBook notch",
+				title: "NotchKit — Turn the MacBook notch into an interactive Dynamic Island",
 			},
 			{
 				name: "description",
 				content:
-					"NotchKit builds Dynamic-Island-style overlays for the MacBook notch in SwiftUI. One shape morphs open on hover or click — you write two views, NotchKit owns the window, silhouette, hit testing, and motion.",
+					"NotchKit turns the MacBook notch into an interactive Dynamic Island in SwiftUI. One morphing shape that responds to hover and click — you write two views, NotchKit handles the rest.",
 			},
 		],
 		links: [

@@ -43,7 +43,7 @@ function Hero() {
 				SwiftUI · macOS 14+ · MIT
 			</p>
 			<h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-foreground">
-				Dynamic Island overlays for the MacBook notch
+				Turn the MacBook notch into an interactive Dynamic Island
 			</h1>
 			<p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
 				An island rests as a pill against the screen edge and morphs open on
