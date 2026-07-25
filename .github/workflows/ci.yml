@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    name: Build & test
+    # The geometry layer is pure functions precisely so CI can verify it with no
+    # display attached. Anything needing real notch hardware is covered by the
+    # checklist in docs/getting-started.md instead.
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show Swift version
+        run: swift --version
+      - name: Build
+        run: swift build -v
+      - name: Test
+        run: swift test -v

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="1200" height="440" role="img" aria-label="NotchKit — the macOS notch as one shape that morphs">
+  <title>NotchKit</title>
+
+  <!-- Paths below use the real NotchShape construction: every corner is a
+       quadratic fillet whose control point sits where the two straight runs would
+       have crossed. Three stages of the same shape, differing only in width,
+       height, and the two radii. -->
+
+  <rect width="1200" height="440" rx="14" fill="#0a0a0c"/>
+  <rect x="0.5" y="0.5" width="1199" height="439" rx="14" fill="none" stroke="#1d1d22"/>
+
+  <!-- Screen top edge: the island always hangs from it -->
+  <line x1="60" y1="90" x2="1140" y2="90" stroke="#2a2a31" stroke-width="1" stroke-dasharray="4 6"/>
+
+  <g fill="#f2f2f5">
+    <!-- Stage 1 — collapsed pill: topRadius 0, so the concave fillets vanish -->
+    <g transform="translate(170 90)">
+      <path d="M 0 0 L 0 18 Q 0 36 18 36 L 142 36 Q 160 36 160 18 L 160 0 Z"/>
+    </g>
+
+    <!-- Stage 2 — mid-morph: the curl arrives as the panel grows tall enough -->
+    <g transform="translate(430 90)">
+      <path d="M 0 0 Q 11 0 11 11 L 11 60 Q 11 80 31 80 L 209 80 Q 229 80 229 60 L 229 11 Q 229 0 240 0 Z"/>
+    </g>
+
+    <!-- Stage 3 — expanded panel: full concave top corners -->
+    <g transform="translate(760 90)">
+      <path d="M 0 0 Q 22 0 22 22 L 22 128 Q 22 150 44 150 L 296 150 Q 318 150 318 128 L 318 22 Q 318 0 340 0 Z"/>
+    </g>
+  </g>
+
+  <!-- Morph direction -->
+  <g stroke="#4a4a55" stroke-width="1.5" fill="none">
+    <path d="M 356 128 L 400 128"/>
+    <path d="M 394 123 L 400 128 L 394 133"/>
+    <path d="M 696 128 L 740 128"/>
+    <path d="M 734 123 L 740 128 L 734 133"/>
+  </g>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Helvetica, Arial, sans-serif" text-anchor="middle">
+    <text x="600" y="345" font-size="54" font-weight="700" fill="#f2f2f5" letter-spacing="-1">NotchKit</text>
+    <text x="600" y="385" font-size="19" fill="#8a8a94">One shape that morphs — not two that trade places</text>
+    <text x="600" y="412" font-size="14" fill="#5c5c66">macOS 14+ · SwiftUI + AppKit · MIT</text>
+  </g>
+</svg>
