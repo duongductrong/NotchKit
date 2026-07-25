@@ -13,7 +13,6 @@ import CoreGraphics
 /// look pixel-identical everywhere wants it reserved always (`.always`). Artwork
 /// that reads fine partly occluded wants no reserve at all (`.none`).
 public enum NotchExpandedTopReserve: Equatable, Sendable {
-
     /// Reserve a pill-height row, but only where a cutout actually blocks it.
     /// On a plain display the content gets the space back. The default, because
     /// it is the only option that is never *wrong* — just occasionally different

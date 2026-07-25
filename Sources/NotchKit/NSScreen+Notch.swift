@@ -29,7 +29,6 @@ public extension NotchGeometry {
 }
 
 public extension NSScreen {
-
     /// Three signals because no single one is reliable across every display.
     /// `safeAreaInsets.top` is the common case; the auxiliary areas catch
     /// configurations where the inset reads zero but the cutout is real.
@@ -56,7 +55,8 @@ public extension NSScreen {
     var notch_stableID: String {
         if let number = deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
            let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue(),
-           let string = CFUUIDCreateString(nil, uuid) {
+           let string = CFUUIDCreateString(nil, uuid)
+        {
             return string as String
         }
         // Some AirPlay / virtual displays refuse a UUID. Fall back to a

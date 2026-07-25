@@ -5,7 +5,6 @@ import AppKit
 // likely to want to change — while the main file is window lifecycle.
 
 extension NotchPresenter {
-
     func startPointerMonitoring() {
         hoverGate.openDelay = configuration.hoverOpenDelay
         hoverGate.cancelGrace = configuration.hoverCancelGrace

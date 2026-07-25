@@ -2,7 +2,6 @@ import SwiftUI
 
 /// How the island looks, independent of how it moves or where it sits.
 public struct NotchStyle: Equatable, Sendable {
-
     /// The island body.
     ///
     /// Defaults to **pure black**, and that is not laziness — it is the only value
@@ -79,7 +78,6 @@ public struct NotchStyle: Equatable, Sendable {
 }
 
 public extension NotchStyle {
-
     /// The colour of the physical notch: pure black, because the housing emits no
     /// light. Match this to make an island read as part of the hardware, and use
     /// it when mocking a cutout in a preview.

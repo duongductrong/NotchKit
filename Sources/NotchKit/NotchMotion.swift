@@ -23,7 +23,6 @@ import SwiftUI
 /// makes the text hard to read. Drop to ~0.5 only for a deliberate attention
 /// bump where the bounce *is* the message.
 public struct NotchMotion: Equatable, Sendable {
-
     /// Collapsed → expanded. Drives the shape morph. Spring: the panel is arriving.
     public var expand: Animation
 
@@ -120,9 +119,9 @@ public struct NotchMotion: Equatable, Sendable {
     /// when two land in the same frame.
     public func animation(for phase: NotchPhase) -> Animation {
         switch phase {
-        case .expanded:  expand
+        case .expanded: expand
         case .collapsed: collapse
-        case .peeking:   peek
+        case .peeking: peek
         }
     }
 
@@ -140,7 +139,6 @@ public struct NotchMotion: Equatable, Sendable {
 // MARK: - Presets
 
 public extension NotchMotion {
-
     /// The tuned defaults. Start here.
     static let standard = NotchMotion()
 

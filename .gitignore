@@ -5,3 +5,10 @@ Package.resolved
 *.xcworkspace
 DerivedData/
 .DS_Store
+
+# Local agent guidelines & settings
+.claude
+.agents
+CLAUDE.md
+AGENTS.md
+/plans/

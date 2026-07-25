@@ -1,12 +1,11 @@
-import Testing
 import CoreGraphics
-import SwiftUI
 @testable import NotchKit
+import SwiftUI
+import Testing
 
 // MARK: - Shapes
 
 struct NotchShapeTests {
-
     /// The invariant the whole morph rests on.
     ///
     /// At `topCornerRadius == 0` the top fillets collapse to zero length and
@@ -81,7 +80,7 @@ struct NotchShapeTests {
         let tiny = CGRect(x: 0, y: 0, width: 20, height: 10)
         let (top, bottom) = NotchShape.resolvedRadii(in: tiny, top: 200, bottom: 200)
 
-        #expect(top == 2.5)   // height / 4
+        #expect(top == 2.5) // height / 4
         #expect(bottom == 7.5) // (width - 2 * top) / 2
 
         let path = NotchShape(topCornerRadius: 200, bottomCornerRadius: 200).path(in: tiny)
@@ -114,7 +113,7 @@ struct NotchShapeTests {
         // The morph passes through these continuously. If any produced an empty or
         // out-of-bounds path it would flicker for a frame somewhere mid-transition —
         // the kind of bug that is nearly impossible to catch by eye.
-        for step in 0...10 {
+        for step in 0 ... 10 {
             let t = Double(step) / 10
             let rect = CGRect(x: 0, y: 0, width: 200 + 340 * t, height: 40 + 220 * t)
             let path = NotchShape(

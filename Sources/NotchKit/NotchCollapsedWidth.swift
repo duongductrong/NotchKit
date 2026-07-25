@@ -10,7 +10,6 @@ import CoreGraphics
 /// cutout, so wrapping a *simulated* one just produces an arbitrarily wide pill
 /// with empty space in the middle.
 public enum NotchCollapsedWidth: Equatable, Sendable {
-
     /// Wrap the hardware cutout, extending `reserve` points past each side.
     ///
     /// The reserve is where your content goes — the middle is behind the cutout.

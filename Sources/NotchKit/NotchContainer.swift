@@ -26,7 +26,6 @@ import SwiftUI
 /// Note the window still never resizes; the morph happens entirely inside it.
 /// See `docs/architecture.md`.
 public struct NotchContainer<Collapsed: View, Expanded: View>: View {
-
     let presenter: NotchPresenter
     @ViewBuilder let collapsed: () -> Collapsed
     @ViewBuilder let expanded: () -> Expanded
@@ -47,11 +46,25 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
         self.expanded = expanded
     }
 
-    private var isOpen: Bool { presenter.phase == .expanded }
-    private var isPeeking: Bool { presenter.phase == .peeking }
-    private var motion: NotchMotion { presenter.motion }
-    private var style: NotchStyle { presenter.style }
-    private var config: NotchConfiguration { presenter.configuration }
+    private var isOpen: Bool {
+        presenter.phase == .expanded
+    }
+
+    private var isPeeking: Bool {
+        presenter.phase == .peeking
+    }
+
+    private var motion: NotchMotion {
+        presenter.motion
+    }
+
+    private var style: NotchStyle {
+        presenter.style
+    }
+
+    private var config: NotchConfiguration {
+        presenter.configuration
+    }
 
     public var body: some View {
         GeometryReader { proxy in
@@ -129,7 +142,6 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
 
     // MARK: Content
 
-    @ViewBuilder
     private func collapsedContent(width: CGFloat, height: CGFloat) -> some View {
         collapsed()
             .frame(width: width, height: height)

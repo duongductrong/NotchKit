@@ -6,7 +6,6 @@ import SwiftUI
 /// Every visual decision `NotchBars` makes, as a value you can build, store,
 /// interpolate between, or ship as your own preset.
 public struct NotchBarsStyle: Equatable, Sendable {
-
     /// Resting height of each bar as a fraction of `height`, `0...1`.
     ///
     /// **The bar count is `levels.count`.** There is no separate count property to
@@ -73,7 +72,9 @@ public struct NotchBarsStyle: Equatable, Sendable {
         self.label = label
     }
 
-    public var barCount: Int { levels.count }
+    public var barCount: Int {
+        levels.count
+    }
 
     /// Width the bars need: every bar plus every gap between them.
     public var intrinsicWidth: CGFloat {
@@ -83,7 +84,7 @@ public struct NotchBarsStyle: Equatable, Sendable {
 
     /// True when at least one bar has somewhere to go.
     public var isAnimated: Bool {
-        (0..<barCount).contains { peak(at: $0) != level(at: $0) }
+        (0 ..< barCount).contains { peak(at: $0) != level(at: $0) }
     }
 
     /// Resting height for a bar, clamped to `0...1`.
@@ -118,7 +119,6 @@ public struct NotchBarsStyle: Equatable, Sendable {
 }
 
 public extension NotchBarsStyle {
-
     /// Static bars at the given heights. No animation object is created at all.
     static func steady(
         _ levels: [CGFloat],

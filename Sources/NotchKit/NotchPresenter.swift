@@ -12,7 +12,6 @@ import SwiftUI
 @MainActor
 @Observable
 public final class NotchPresenter {
-
     // MARK: Observable state
 
     public private(set) var phase: NotchPhase = .collapsed
@@ -74,7 +73,7 @@ public final class NotchPresenter {
         self.motion = motion ?? .resolved()
         self.style = style
         self.preferredScreenID = preferredScreenID
-        self.geometry = NSScreen.notch_preferred(matching: preferredScreenID)
+        geometry = NSScreen.notch_preferred(matching: preferredScreenID)
             .map(NotchGeometry.init(screen:))
             ?? NotchGeometry(
                 screenFrame: .zero,
@@ -91,9 +90,9 @@ public final class NotchPresenter {
     /// `collapsed` and `expanded` receive no arguments — read `presenter.phase`
     /// if your content needs to know. Both are wrapped in the correct silhouette,
     /// hairline, and shadow for you; supply content only.
-    public func install<Collapsed: View, Expanded: View>(
-        @ViewBuilder collapsed: @escaping () -> Collapsed,
-        @ViewBuilder expanded: @escaping () -> Expanded
+    public func install(
+        @ViewBuilder collapsed: @escaping () -> some View,
+        @ViewBuilder expanded: @escaping () -> some View
     ) {
         guard panel == nil, let screen = resolvedScreen else { return }
 
@@ -272,7 +271,8 @@ public final class NotchPresenter {
                 // A pinned display that has gone away must fall back, or the
                 // island silently renders off-screen forever.
                 if let id = self.preferredScreenID,
-                   !NSScreen.screens.contains(where: { $0.notch_stableID == id }) {
+                   !NSScreen.screens.contains(where: { $0.notch_stableID == id })
+                {
                     self.preferredScreenID = nil
                     return // the didSet already repositioned
                 }

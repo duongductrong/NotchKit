@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
-import SwiftUI
 import NotchKit // remove this line if you copied NotchKit into your app target
+import SwiftUI
 
 // A complete island app that hosts three completely different islands.
 //
@@ -18,22 +18,25 @@ import NotchKit // remove this line if you copied NotchKit into your app target
 @MainActor
 @Observable
 final class DemoModel {
-
     /// Held so content can read live geometry and drive the island. NotchKit does
     /// not retain you, so something has to own this — see `AppDelegate`.
     let presenter: NotchPresenter
 
     private(set) var presetIndex = 0
-    var preset: IslandPreset { IslandPreset.all[presetIndex] }
+    var preset: IslandPreset {
+        IslandPreset.all[presetIndex]
+    }
 
-    // Vibe Code
+    /// Vibe Code
     var steps: [Step] = [
         Step(title: "Indexing workspace", state: .done),
         Step(title: "Running tests", state: .running),
         Step(title: "Reviewing diff", state: .queued),
     ]
     var isRunning = true
-    var completedSteps: Int { steps.filter { $0.state == .done }.count }
+    var completedSteps: Int {
+        steps.filter { $0.state == .done }.count
+    }
 
     // Drop Notch
     var files: [String] = []
@@ -95,13 +98,12 @@ final class DemoModel {
 /// main-actor state from stored-property initialisers is rejected.
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-
     // Hold both strongly: the presenter owns the window, and nothing else
     // retains it. Let it go and the island silently disappears.
     private var presenter: NotchPresenter?
     private var model: DemoModel?
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    func applicationDidFinishLaunching(_: Notification) {
         let first = IslandPreset.all[0]
 
         let presenter = NotchPresenter(

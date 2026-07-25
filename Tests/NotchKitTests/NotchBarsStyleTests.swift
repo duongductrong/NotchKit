@@ -1,10 +1,9 @@
-import Testing
 import CoreGraphics
-import SwiftUI
 @testable import NotchKit
+import SwiftUI
+import Testing
 
 struct NotchBarsStyleTests {
-
     @Test("Bar count comes from the heights, so the two cannot disagree")
     func barCountFollowsLevels() {
         // The alternative — a separate `count` property — is the kind of pairing
@@ -66,7 +65,6 @@ struct NotchBarsStyleTests {
 }
 
 struct NotchExpandedTopReserveTests {
-
     @Test("Reserve policies differ only where a cutout actually blocks content")
     func reservePolicies() {
         let pill: CGFloat = 38

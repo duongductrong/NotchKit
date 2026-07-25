@@ -1,0 +1,54 @@
+# SwiftFormat Configuration
+# NotchKit — macOS SwiftUI + AppKit Notch UI library
+# SwiftFormat 0.59.x | Swift 5.9+
+
+# Swift version
+--swiftversion 5.9
+
+# Indentation & line width
+--indent 4
+--maxwidth 120
+--tabwidth 4
+
+# Wrapping
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--wrapconditions preserve
+--wrapreturntype preserve
+--wraptypealiases preserve
+
+# Attributes
+--funcattributes prev-line
+--typeattributes prev-line
+--varattributes preserve
+
+# Self
+--self remove
+
+# Imports
+--importgrouping alpha
+
+# Commas & semicolons
+--commas always
+--semicolons never
+
+# Void
+--voidtype void
+
+# File headers
+--header ignore
+
+# Conditional compilation
+--ifdef indent
+
+# Disabled rules
+--disable sortedSwitchCases
+--disable wrapEnumCases
+--disable acronyms
+--disable markTypes
+--disable blankLineAfterImports
+
+# Excluded paths
+--exclude .build,DerivedData

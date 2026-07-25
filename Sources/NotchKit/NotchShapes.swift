@@ -108,21 +108,29 @@ public struct NotchShape: Shape {
 
         let turns = [
             // Top-left: leaves the full-width top edge, curls in to the left wall.
-            Turn(exit: CGPoint(x: rect.minX, y: rect.minY),
-                 crossing: CGPoint(x: leftWall, y: rect.minY),
-                 entry: CGPoint(x: leftWall, y: rect.minY + r)),
+            Turn(
+                exit: CGPoint(x: rect.minX, y: rect.minY),
+                crossing: CGPoint(x: leftWall, y: rect.minY),
+                entry: CGPoint(x: leftWall, y: rect.minY + r)
+            ),
             // Bottom-left.
-            Turn(exit: CGPoint(x: leftWall, y: rect.maxY - b),
-                 crossing: CGPoint(x: leftWall, y: rect.maxY),
-                 entry: CGPoint(x: leftWall + b, y: rect.maxY)),
+            Turn(
+                exit: CGPoint(x: leftWall, y: rect.maxY - b),
+                crossing: CGPoint(x: leftWall, y: rect.maxY),
+                entry: CGPoint(x: leftWall + b, y: rect.maxY)
+            ),
             // Bottom-right.
-            Turn(exit: CGPoint(x: rightWall - b, y: rect.maxY),
-                 crossing: CGPoint(x: rightWall, y: rect.maxY),
-                 entry: CGPoint(x: rightWall, y: rect.maxY - b)),
+            Turn(
+                exit: CGPoint(x: rightWall - b, y: rect.maxY),
+                crossing: CGPoint(x: rightWall, y: rect.maxY),
+                entry: CGPoint(x: rightWall, y: rect.maxY - b)
+            ),
             // Top-right: mirror of the top-left curl, back out to the top edge.
-            Turn(exit: CGPoint(x: rightWall, y: rect.minY + r),
-                 crossing: CGPoint(x: rightWall, y: rect.minY),
-                 entry: CGPoint(x: rect.maxX, y: rect.minY)),
+            Turn(
+                exit: CGPoint(x: rightWall, y: rect.minY + r),
+                crossing: CGPoint(x: rightWall, y: rect.minY),
+                entry: CGPoint(x: rect.maxX, y: rect.minY)
+            ),
         ]
 
         var path = Path()
@@ -141,7 +149,6 @@ public struct NotchShape: Shape {
 }
 
 public extension NotchShape {
-
     /// The collapsed resting silhouette: flat top, semicircular bottom.
     ///
     /// A full semicircle (`height / 2`) is what makes the pill read as one

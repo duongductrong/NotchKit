@@ -15,10 +15,11 @@ import AppKit
 /// settings window) is frontmost.
 @MainActor
 public final class NotchPointerMonitor {
-
     private var monitors: [Any] = []
 
-    public var isRunning: Bool { !monitors.isEmpty }
+    public var isRunning: Bool {
+        !monitors.isEmpty
+    }
 
     public init() {}
 
@@ -104,7 +105,6 @@ public final class NotchPointerMonitor {
 /// that is missing.
 @MainActor
 public final class NotchHoverGate {
-
     public var openDelay: TimeInterval
     public var cancelGrace: TimeInterval
 
@@ -114,7 +114,9 @@ public final class NotchHoverGate {
     private var openTask: Task<Void, Never>?
     private var cancelTask: Task<Void, Never>?
 
-    public var isPending: Bool { openTask != nil }
+    public var isPending: Bool {
+        openTask != nil
+    }
 
     public init(openDelay: TimeInterval = 0.15, cancelGrace: TimeInterval = 0.10) {
         self.openDelay = openDelay

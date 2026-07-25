@@ -23,7 +23,6 @@ import SwiftUI
 /// }
 /// ```
 public struct NotchCutoutLayout<Leading: View, Trailing: View>: View {
-
     /// Width of the hardware cutout to reserve.
     public var cutoutWidth: CGFloat
 

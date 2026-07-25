@@ -1,16 +1,16 @@
-import SwiftUI
 import NotchKit
+import SwiftUI
 
 // A background coding agent: what is running, how far along, and a way to stop it.
 // Wide, short panel; hardware-matched black; standard springs.
 
 // MARK: - Bar styles
-//
-// NotchKit ships only shape-descriptive styles — `wave`, `steady` — and leaves
-// naming the *states* to the app that has them. This is where "running" and
-// "paused" become real, next to the code that knows what they mean.
-private extension NotchBarsStyle {
 
+///
+/// NotchKit ships only shape-descriptive styles — `wave`, `steady` — and leaves
+/// naming the *states* to the app that has them. This is where "running" and
+/// "paused" become real, next to the code that knows what they mean.
+private extension NotchBarsStyle {
     static func running(tint: Color) -> NotchBarsStyle {
         wave(
             count: 4,
@@ -35,7 +35,6 @@ private extension NotchBarsStyle {
 // MARK: - Preset
 
 extension IslandPreset {
-
     static let vibeCode = IslandPreset(
         id: "vibe-code",
         name: "Vibe Code",

@@ -1,11 +1,10 @@
-import Testing
 import CoreGraphics
 @testable import NotchKit
+import Testing
 
 // MARK: - Motion
 
 struct NotchMotionTests {
-
     @Test("Each phase gets its own curve")
     func phaseSelectsDistinctCurves() {
         let motion = NotchMotion.standard

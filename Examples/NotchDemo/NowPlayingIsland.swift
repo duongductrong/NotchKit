@@ -1,5 +1,5 @@
-import SwiftUI
 import NotchKit
+import SwiftUI
 
 // The third shape a panel can take: full-bleed.
 //
@@ -12,7 +12,6 @@ import NotchKit
 // picks up the concave corners for free.
 
 extension IslandPreset {
-
     static let nowPlaying = IslandPreset(
         id: "now-playing",
         name: "Now Playing",

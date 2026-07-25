@@ -1,0 +1,74 @@
+# SwiftLint Configuration
+# NotchKit — macOS SwiftUI + AppKit Notch UI library
+# SwiftLint 0.63.x | Swift 5.9+
+
+included:
+  - Sources
+  - Tests
+  - Examples
+
+excluded:
+  - .build
+  - DerivedData
+  - "*.generated.swift"
+
+disabled_rules:
+  - trailing_comma            # SwiftFormat owns trailing commas
+  - opening_brace             # SwiftFormat owns brace placement
+  - colon                     # SwiftFormat owns colon spacing
+  - comma                     # SwiftFormat owns comma spacing
+  - vertical_whitespace       # SwiftFormat owns blank lines
+  - sorted_imports            # SwiftFormat owns import sorting
+  - redundant_void_return     # SwiftFormat owns redundant returns
+
+opt_in_rules:
+  # Performance
+  - contains_over_filter_count
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - empty_count
+  - first_where
+  - last_where
+  - flatmap_over_map_reduce
+  - sorted_first_last
+
+  # Safety & clarity
+  - empty_string
+  - fatal_error_message
+  - force_unwrapping
+  - modifier_order
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - toggle_bool
+  - unowned_variable_capture
+  - yoda_condition
+  - discouraged_optional_boolean
+  - explicit_init
+  - joined_default_parameter
+
+  # Formatting helpers (non-overlapping with SwiftFormat)
+  - closure_end_indentation
+  - collection_alignment
+  - literal_expression_end_indentation
+  - multiline_arguments
+  - multiline_parameters
+
+line_length:
+  warning: 120
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+type_body_length:
+  warning: 300
+  error: 500
+
+file_length:
+  warning: 500
+  error: 1000
+
+function_body_length:
+  warning: 50
+  error: 100
+
+reporter: xcode

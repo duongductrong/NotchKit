@@ -47,7 +47,6 @@ import SwiftUI
 /// cheapest thing you can put on screen. Animating `path` or `bounds` instead
 /// would force a re-rasterisation every frame and give up most of the win.
 public struct NotchBars: View {
-
     public var style: NotchBarsStyle
 
     public init(_ style: NotchBarsStyle) {
@@ -66,19 +65,18 @@ public struct NotchBars: View {
     private struct Representable: NSViewRepresentable {
         let style: NotchBarsStyle
 
-        func makeNSView(context: Context) -> BarsView {
+        func makeNSView(context _: Context) -> BarsView {
             let view = BarsView()
             view.apply(style)
             return view
         }
 
-        func updateNSView(_ view: BarsView, context: Context) {
+        func updateNSView(_ view: BarsView, context _: Context) {
             view.apply(style)
         }
     }
 
     fileprivate final class BarsView: NSView {
-
         private var bars: [CAShapeLayer] = []
         private var style = NotchBarsStyle.steady([])
 
@@ -90,7 +88,7 @@ public struct NotchBars: View {
         }
 
         @available(*, unavailable)
-        required init?(coder: NSCoder) {
+        required init?(coder _: NSCoder) {
             fatalError("init(coder:) is not supported")
         }
 
@@ -122,12 +120,14 @@ public struct NotchBars: View {
         override func viewDidChangeBackingProperties() {
             super.viewDidChangeBackingProperties()
             let scale = window?.backingScaleFactor ?? 2
-            for bar in bars { bar.contentsScale = scale }
+            for bar in bars {
+                bar.contentsScale = scale
+            }
         }
 
         private func rebuildLayers() {
             bars.forEach { $0.removeFromSuperlayer() }
-            bars = (0..<style.barCount).map { _ in
+            bars = (0 ..< style.barCount).map { _ in
                 let bar = CAShapeLayer()
                 // Centre anchor makes a scale animation grow symmetrically. A
                 // default (0,0) anchor grows upward only, which reads as a
@@ -208,24 +208,24 @@ public struct NotchBars: View {
 
 #if DEBUG
 
-#Preview("Bars") {
-    HStack(spacing: 28) {
-        ForEach(
-            [
-                ("steady", NotchBarsStyle.steady([0.3, 0.5, 0.3])),
-                ("wave", .wave()),
-                ("wide wave", .wave(count: 5, low: 0.2, high: 1, barWidth: 3, spacing: 4, period: 0.6)),
-                ("pulse", NotchBarsStyle(levels: [0.4], peaks: [1], barWidth: 8, cornerRadius: 4, height: 8)),
-            ],
-            id: \.0
-        ) { name, style in
-            VStack(spacing: 8) {
-                NotchBars(style).frame(height: 20)
-                Text(name).font(.caption)
+    #Preview("Bars") {
+        HStack(spacing: 28) {
+            ForEach(
+                [
+                    ("steady", NotchBarsStyle.steady([0.3, 0.5, 0.3])),
+                    ("wave", .wave()),
+                    ("wide wave", .wave(count: 5, low: 0.2, high: 1, barWidth: 3, spacing: 4, period: 0.6)),
+                    ("pulse", NotchBarsStyle(levels: [0.4], peaks: [1], barWidth: 8, cornerRadius: 4, height: 8)),
+                ],
+                id: \.0
+            ) { name, style in
+                VStack(spacing: 8) {
+                    NotchBars(style).frame(height: 20)
+                    Text(name).font(.caption)
+                }
             }
         }
+        .padding(32)
+        .background(Color.black)
     }
-    .padding(32)
-    .background(Color.black)
-}
 #endif

@@ -1,5 +1,5 @@
-import SwiftUI
 import NotchKit
+import SwiftUI
 
 // The thin part. Everything here is preset-agnostic: it asks the active
 // `IslandPreset` for content and adds only the switcher this demo needs.

@@ -1,5 +1,5 @@
-import SwiftUI
 import NotchKit
+import SwiftUI
 
 /// One island personality, as a value.
 ///
@@ -19,7 +19,6 @@ import NotchKit
 /// different concrete type. Your app will not need it — you have one island, so
 /// its slots can be plain `some View`. Don't copy this bit.
 struct IslandPreset: Identifiable {
-
     let id: String
     let name: String
 
@@ -40,5 +39,7 @@ struct IslandPreset: Identifiable {
     /// The expanded panel.
     let expanded: @MainActor (DemoModel) -> AnyView
 
-    static var all: [IslandPreset] { [.vibeCode, .dropNotch, .nowPlaying] }
+    static var all: [IslandPreset] {
+        [.vibeCode, .dropNotch, .nowPlaying]
+    }
 }

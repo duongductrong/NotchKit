@@ -1,12 +1,11 @@
-import Testing
 import CoreGraphics
-import SwiftUI
 @testable import NotchKit
+import SwiftUI
+import Testing
 
 // MARK: - Spacing
 
 struct NotchSpacingTests {
-
     @Test("Expanded content clears the inward-pulled side walls")
     func contentInsetsClearConcaveSideWalls() {
         // Concave top corners narrow the panel body by the top radius on each side.

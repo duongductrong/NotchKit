@@ -1,12 +1,11 @@
-import SwiftUI
 import NotchKit
+import SwiftUI
 
 // A drag-and-drop shelf. Narrow and tall where Vibe Code is wide and short,
 // warm ink where that one is hardware black, playful springs where that one is
 // standard. Same library, no shared content code.
 
 private extension NotchBarsStyle {
-
     /// A single fat bar breathing — a "drop here" heartbeat rather than a meter.
     /// Same component as Vibe Code's four-bar equaliser; only the numbers differ.
     static func beacon(tint: Color) -> NotchBarsStyle {
@@ -29,7 +28,6 @@ private extension NotchBarsStyle {
 // MARK: - Preset
 
 extension IslandPreset {
-
     static let dropNotch = IslandPreset(
         id: "drop-notch",
         name: "Drop Notch",

@@ -1,13 +1,12 @@
-import Testing
 import CoreGraphics
 @testable import NotchKit
+import Testing
 
 /// Notch geometry bugs reproduce only on specific hardware with specific
 /// menu-bar settings, which makes them expensive to find by hand and easy to
 /// re-introduce. Because every derivation in `NotchGeometry` is a pure function,
 /// all of it can be pinned here with no display attached.
 struct NotchGeometryTests {
-
     // MARK: Collapsed height
 
     @Test("Notched screens use the cutout height verbatim")
@@ -116,7 +115,7 @@ struct NotchGeometryTests {
     @Test("Hit testing includes the max edges, unlike CGRect.contains")
     func hitTestIsEdgeInclusive() {
         let rect = CGRect(x: 100, y: 200, width: 224, height: 38)
-        let topEdge = CGPoint(x: 150, y: 238)   // exactly rect.maxY
+        let topEdge = CGPoint(x: 150, y: 238) // exactly rect.maxY
         let rightEdge = CGPoint(x: 324, y: 220) // exactly rect.maxX
 
         #expect(NotchGeometry.contains(rect, topEdge))
@@ -143,7 +142,7 @@ struct NotchGeometryTests {
         )
 
         let size = config.windowSize(collapsedHeight: 38)
-        #expect(size.width == 576)  // 540 content + 18 shadow margin per side
+        #expect(size.width == 576) // 540 content + 18 shadow margin per side
         #expect(size.height == 320) // 38 cutout + 260 content + 22 shadow
     }
 

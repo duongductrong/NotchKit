@@ -36,7 +36,6 @@ public enum NotchExpandReason: Equatable, Sendable {
 /// specific hardware + menu-bar settings, and you cannot afford to discover
 /// them by hand-testing on four machines.
 public struct NotchGeometry: Equatable, Sendable {
-
     /// Full screen bounds, AppKit coordinates (origin bottom-left).
     public var screenFrame: CGRect
 

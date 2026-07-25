@@ -23,15 +23,18 @@ import SwiftUI
 /// The cost is a large mostly-transparent window sitting above everything, which
 /// is why hit testing must be exact (see `NotchHostingView.hitTest`).
 public final class NotchPanel: NSPanel {
-
     /// Key, so text fields and buttons inside the panel work.
-    public override var canBecomeKey: Bool { true }
+    override public var canBecomeKey: Bool {
+        true
+    }
 
     /// Never main. Becoming main would make macOS treat the island as the
     /// app's primary window and hand it the menu bar, which for a
     /// `LSUIElement` accessory app means the user's real frontmost app
     /// visibly loses focus every time the island opens.
-    public override var canBecomeMain: Bool { false }
+    override public var canBecomeMain: Bool {
+        false
+    }
 
     public convenience init(contentRect: CGRect) {
         self.init(
@@ -100,16 +103,19 @@ public final class NotchPanel: NSPanel {
 /// Hosts the SwiftUI island and makes the transparent parts of the window
 /// genuinely transparent to the pointer.
 public final class NotchHostingView<Content: View>: NSHostingView<Content> {
-
     /// The clickable region, in this view's coordinates. Everything outside it
     /// passes clicks through to whatever is behind the window.
     public var contentRectProvider: (() -> CGRect?)?
 
-    public override var isOpaque: Bool { false }
+    override public var isOpaque: Bool {
+        false
+    }
 
     /// Let the first click into an unfocused island do real work instead of
     /// being spent on focusing the window.
-    public override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override public func acceptsFirstMouse(for _: NSEvent?) -> Bool {
+        true
+    }
 
     public required init(rootView: Content) {
         super.init(rootView: rootView)
@@ -118,11 +124,11 @@ public final class NotchHostingView<Content: View>: NSHostingView<Content> {
     }
 
     @available(*, unavailable)
-    public required init?(coder: NSCoder) {
+    public required init?(coder _: NSCoder) {
         fatalError("init(coder:) is not supported")
     }
 
-    public override func viewDidMoveToWindow() {
+    override public func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
@@ -139,9 +145,10 @@ public final class NotchHostingView<Content: View>: NSHostingView<Content> {
     /// Note the coordinate space: for a borderless panel's content view, the
     /// incoming point is effectively in this view's own bounds, and AppKit's
     /// bottom-left origin means the island occupies the *top* of `bounds`.
-    public override func hitTest(_ point: NSPoint) -> NSView? {
+    override public func hitTest(_ point: NSPoint) -> NSView? {
         guard let rect = contentRectProvider?(),
-              NotchGeometry.contains(rect, point) else {
+              NotchGeometry.contains(rect, point)
+        else {
             return nil
         }
         return super.hitTest(point) ?? self
@@ -154,12 +161,12 @@ public final class NotchHostingView<Content: View>: NSHostingView<Content> {
     /// of firing its action, so the user's first press does nothing and they
     /// have to click twice. Claiming key here first makes the very first click
     /// count.
-    public override func mouseDown(with event: NSEvent) {
+    override public func mouseDown(with event: NSEvent) {
         window?.makeKey()
         super.mouseDown(with: event)
     }
 
-    public override func layout() {
+    override public func layout() {
         super.layout()
         // NSHostingView wraps SwiftUI content in private NSScrollViews and
         // recreates them whenever the view tree changes shape, so this has to

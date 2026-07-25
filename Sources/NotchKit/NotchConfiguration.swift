@@ -4,7 +4,6 @@ import SwiftUI
 
 /// Everything tunable about an island, in one value type.
 public struct NotchConfiguration: Equatable, Sendable {
-
     // MARK: Size
 
     /// Size of the expanded panel's *content*, excluding shadow insets.
@@ -200,7 +199,6 @@ public struct NotchConfiguration: Equatable, Sendable {
 }
 
 public extension NotchConfiguration {
-
     /// Sensible default: hover-to-open, medium panel.
     static let standard = NotchConfiguration()
 
