@@ -1,0 +1,82 @@
+# NotchKit
+
+> NotchKit turns the MacBook notch into an interactive Dynamic Island in SwiftUI. An island rests as a pill against the screen edge and morphs open on hover or click — one shape whose width, height, and corner radii animate together, rather than two views cross-fading into each other.
+
+NotchKit owns the window, silhouette, hit testing, pointer hysteresis, and motion. You write two SwiftUI views: what the collapsed pill shows and what the expanded panel shows.
+
+## Core Documentation
+
+- [Getting Started](https://github.com/duongductrong/NotchKit/blob/master/docs/getting-started.md): Installation via SPM, accessory app setup (`LSUIElement`), first island setup, and verification checklist.
+- [Customization Guide](https://github.com/duongductrong/NotchKit/blob/master/docs/customization.md): Complete reference for `NotchConfiguration`, `NotchMotion`, `NotchStyle`, `NotchCollapsedWidth`, `NotchExpandedTopReserve`, and `NotchBarsStyle`.
+- [Architecture & Geometry](https://github.com/duongductrong/NotchKit/blob/master/docs/architecture.md): Coordinate spaces, pure geometry functions, window positioning, hit-testing mechanics, and multi-display handling.
+- [Motion System](https://github.com/duongductrong/NotchKit/blob/master/docs/motion.md): Spring parameters, phase curves, hover hysteresis, and Reduce Motion accessibility support.
+- [Recipes & Use Cases](https://github.com/duongductrong/NotchKit/blob/master/docs/recipes.md): Code examples for notification islands, media controllers with equalizers, progress trackers, hotkey toggles, and multi-display setups.
+- [Morph Mechanics](https://github.com/duongductrong/NotchKit/blob/master/docs/morph-section.md): Detailed mechanics of single-shape morphing without view cross-fading.
+- [Troubleshooting](https://github.com/duongductrong/NotchKit/blob/master/docs/troubleshooting.md): Diagnosis and fixes for common notch rendering, window ordering, and event handling issues.
+
+## Primary APIs
+
+- `NotchPresenter`: Main actor controller that installs, drives (`expand()`, `collapse()`, `toggle()`, `peek()`), and configures the island window.
+- `NotchCutoutLayout`: Collapsed pill container that reserves physical cutout space and provides leading and trailing content slots.
+- `NotchConfiguration`: Value type configuring expanded size, collapsed width policy (`.wrapCutout`, `.fixed`), top reserve policy (`.cutoutOnly`, `.always`, `.fixed`, `.none`), content alignment, and corner radii.
+- `NotchMotion`: Value type defining spring curves, scale multipliers, hover delays, and phase timings (honors `.resolved` for Reduce Motion).
+- `NotchStyle`: Visual styling specifying background ink, hairline border, shadow, and color scheme (supports light/dark island rendering).
+- `NotchBars` / `NotchBarsStyle`: Audio equalizer and status indicator component supporting `.wave` and `.steady` preset styles.
+
+## Runnable Examples
+
+- [NotchDemo App](https://github.com/duongductrong/NotchKit/tree/master/Examples/NotchDemo): Runnable macOS demo app (`swift run NotchDemo`) showcasing three distinct island presets:
+  - `VibeCode` ([`VibeCodeIsland.swift`](https://github.com/duongductrong/NotchKit/blob/master/Examples/NotchDemo/VibeCodeIsland.swift)): AI coding agent interface with interactive permission prompt cards, task list, and walking pixel cat indicator.
+  - `NowPlaying` ([`NowPlayingIsland.swift`](https://github.com/duongductrong/NotchKit/blob/master/Examples/NotchDemo/NowPlayingIsland.swift)): Native macOS Apple Music style player with album art, scrubber, and transport controls.
+  - `MorphInspector` ([`MorphInspectorIsland.swift`](https://github.com/duongductrong/NotchKit/blob/master/Examples/NotchDemo/MorphInspectorIsland.swift)): Interactive geometry morphing silhouette inspector.
+
+## Package Installation
+
+Declare in `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.1.0")
+],
+targets: [
+    .target(name: "YourApp", dependencies: ["NotchKit"])
+]
+```
+
+## Quick Start Example
+
+```swift
+import AppKit
+import SwiftUI
+import NotchKit
+
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var presenter: NotchPresenter?
+
+    func applicationDidFinishLaunching(_ note: Notification) {
+        let presenter = NotchPresenter()
+        self.presenter = presenter
+
+        presenter.install(
+            collapsed: {
+                NotchCutoutLayout(
+                    cutoutWidth: presenter.geometry.hasPhysicalNotch ? presenter.geometry.notchWidth : 0,
+                    gutterWidth: presenter.collapsedGutterWidth,
+                    pillHeight: presenter.geometry.collapsedHeight
+                ) {
+                    Image(systemName: "sparkles")
+                } trailing: {
+                    Text("3").monospacedDigit()
+                }
+            },
+            expanded: {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Panel Title").font(.headline)
+                    Text("Panel content goes here").font(.subheadline)
+                }
+            }
+        )
+    }
+}
+```
