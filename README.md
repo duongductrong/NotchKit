@@ -6,6 +6,8 @@
   <a href="#requirements"><img src="https://img.shields.io/badge/platform-macOS%2014%2B-0a0a0c?style=flat-square" alt="macOS 14+"></a>
   <a href="#requirements"><img src="https://img.shields.io/badge/swift-5.9%2B-f05138?style=flat-square" alt="Swift 5.9+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3da639?style=flat-square" alt="MIT"></a>
+  <a href="https://github.com/sponsors/duongductrong"><img src="https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?style=flat-square" alt="GitHub Sponsors"></a>
+  <a href="https://ko-fi.com/duongductrong"><img src="https://img.shields.io/badge/ko--fi-duongductrong-ff5e5b?style=flat-square" alt="Ko-fi"></a>
   <a href="docs/"><img src="https://img.shields.io/badge/docs-docs%2F-4a90d9?style=flat-square" alt="Docs"></a>
 </p>
 
@@ -212,6 +214,13 @@ complains. If you add anything that depends on display state, put the maths in a
 ```sh
 swift build && swift test    # no display required
 ```
+
+## Sponsor
+
+If NotchKit helps you build great macOS apps, consider supporting the project:
+
+- [GitHub Sponsors](https://github.com/sponsors/duongductrong)
+- [Ko-fi](https://ko-fi.com/duongductrong)
 
 ## License
 
