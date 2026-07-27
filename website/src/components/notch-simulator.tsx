@@ -7,7 +7,9 @@ const COLLAPSED = {
 	width: 278,
 	height: 38,
 	cutout: 190,
-	topRadius: 0,
+	// NotchConfiguration.collapsedTopCornerRadius — a slight flare into the bezel,
+	// a fraction of the expanded curl.
+	topRadius: 6,
 	bottomRadius: 19,
 };
 const EXPANDED = { width: 440, height: 210, topRadius: 22, bottomRadius: 22 };
@@ -145,7 +147,8 @@ export function MorphLoop() {
 
 	const width = lerp(180, 340, t);
 	const height = lerp(28, 130, t);
-	const topRadius = lerp(0, 22, t);
+	// Scaled to this illustration's 28pt pill, same ratio the library uses at 38.
+	const topRadius = lerp(4, 22, t);
 	const bottomRadius = lerp(14, 22, t);
 
 	return (

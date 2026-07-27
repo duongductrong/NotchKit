@@ -2,7 +2,14 @@ import { useCallback, useRef, useState } from "react";
 import { cn } from "#/lib/cn";
 import { notchPath, useSpringValue } from "./notch-simulator";
 
-const COLLAPSED = { width: 278, height: 38, cutout: 190, bottomRadius: 19 };
+const COLLAPSED = {
+	width: 278,
+	height: 38,
+	cutout: 190,
+	// NotchConfiguration.collapsedTopCornerRadius.
+	topRadius: 6,
+	bottomRadius: 19,
+};
 const EXPANDED = { width: 440, height: 210 };
 
 type MorphElementId =
@@ -365,7 +372,7 @@ export function MorphExplorer() {
 
 	const width = lerp(COLLAPSED.width, EXPANDED.width, t);
 	const height = lerp(COLLAPSED.height, EXPANDED.height, t);
-	const topR = lerp(0, topRadius, t);
+	const topR = lerp(COLLAPSED.topRadius, topRadius, t);
 	const bottomR = lerp(COLLAPSED.bottomRadius, bottomRadius, t);
 	const contentOpacity = Math.max(0, (t - 0.35) / 0.65);
 	const collapsedOpacity = Math.max(0, 1 - t * 3);

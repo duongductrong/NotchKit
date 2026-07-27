@@ -38,6 +38,24 @@ public struct NotchConfiguration: Equatable, Sendable {
 
     // MARK: Corner radii
 
+    /// Concave curl at the collapsed pill's top corners.
+    ///
+    /// Small on purpose. The physical cutout does not meet the bezel at a hard
+    /// right angle, so a dead-flat pill top reads as a black rectangle *parked*
+    /// under the notch rather than as part of it. A few points of curl picks up
+    /// the same flare the expanded panel has and the pill fuses with the hardware.
+    ///
+    /// Kept well below `expandedTopCornerRadius` because the two are seen at very
+    /// different scales: 22pt of curl reads as a gentle flare across a 260pt panel
+    /// and as a gouge across a 38pt pill. `NotchShape` clamps this to a quarter of
+    /// the pill height (~9.5pt on current hardware) regardless, so the failure mode
+    /// of over-setting it is a ceiling rather than a broken outline.
+    ///
+    /// Forced to `0` on displays with no hardware cutout — there is nothing there
+    /// to fuse with, and the curl reads as a rendering fault. Set it to `0` for a
+    /// dead-flat pill everywhere.
+    public var collapsedTopCornerRadius: CGFloat
+
     public var expandedTopCornerRadius: CGFloat
     public var expandedBottomCornerRadius: CGFloat
 
@@ -105,6 +123,7 @@ public struct NotchConfiguration: Equatable, Sendable {
         collapsedHitPadding: CGFloat = 6,
         shadowInsetHorizontal: CGFloat = 18,
         shadowInsetBottom: CGFloat = 22,
+        collapsedTopCornerRadius: CGFloat = 6,
         expandedTopCornerRadius: CGFloat = 22,
         expandedBottomCornerRadius: CGFloat = 22,
         expandedContentInsetsOverride: EdgeInsets? = nil,
@@ -123,6 +142,7 @@ public struct NotchConfiguration: Equatable, Sendable {
         self.collapsedHitPadding = collapsedHitPadding
         self.shadowInsetHorizontal = shadowInsetHorizontal
         self.shadowInsetBottom = shadowInsetBottom
+        self.collapsedTopCornerRadius = collapsedTopCornerRadius
         self.expandedTopCornerRadius = expandedTopCornerRadius
         self.expandedBottomCornerRadius = expandedBottomCornerRadius
         self.expandedContentInsetsOverride = expandedContentInsetsOverride

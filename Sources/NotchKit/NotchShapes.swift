@@ -44,10 +44,11 @@ import SwiftUI
 ///
 /// ## One shape for both states
 ///
-/// At `topCornerRadius == 0` the top fillets collapse to zero length and this
-/// becomes a **flat-topped pill** — exactly the collapsed resting shape. So the
-/// whole collapsed → expanded transition is four interpolating numbers (two radii,
-/// a width, a height) on a *single* shape, with no swap between shape types.
+/// The collapsed resting shape is this same shape at a **small** top radius, and at
+/// `topCornerRadius == 0` the top fillets collapse to zero length and it becomes an
+/// exactly **flat-topped pill** — what displays with no cutout to fuse with get. So
+/// the whole collapsed → expanded transition is four interpolating numbers (two
+/// radii, a width, a height) on a *single* shape, with no swap between shape types.
 ///
 /// That is what makes the morph a morph. Cross-fading a pill view into a panel
 /// view can only ever read as a switch, because at no point is there one object
@@ -149,12 +150,18 @@ public struct NotchShape: Shape {
 }
 
 public extension NotchShape {
-    /// The collapsed resting silhouette: flat top, semicircular bottom.
+    /// The collapsed resting silhouette: semicircular bottom, and an optional
+    /// slight curl at the top.
     ///
     /// A full semicircle (`height / 2`) is what makes the pill read as one
     /// continuous blob rather than a rounded box.
-    static func pill(height: CGFloat) -> NotchShape {
-        NotchShape(topCornerRadius: 0, bottomCornerRadius: height / 2)
+    ///
+    /// `topCornerRadius` defaults to `0` — a dead-flat top — because that is what a
+    /// standalone pill wants. To mirror the island's own resting silhouette, pass
+    /// `configuration.collapsedTopCornerRadius`; the same clamp applies, so at pill
+    /// height the curl never exceeds a quarter of `height`.
+    static func pill(height: CGFloat, topCornerRadius: CGFloat = 0) -> NotchShape {
+        NotchShape(topCornerRadius: topCornerRadius, bottomCornerRadius: height / 2)
     }
 
     /// The expanded silhouette.
@@ -174,10 +181,15 @@ public extension NotchShape {
 
 /// A standalone flat-top, round-bottom pill.
 ///
-/// `NotchShape.pill(height:)` is equivalent and is what the island itself uses,
-/// since sharing one shape type is what allows the morph. Reach for this only
-/// where a pill is genuinely static and unrelated to the island's geometry —
-/// mocking the physical cutout in a settings preview, for instance.
+/// `NotchShape.pill(height:)` is equivalent, and `NotchShape` is what the island
+/// itself uses, since sharing one shape type is what allows the morph. Reach for
+/// this only where a pill is genuinely static and unrelated to the island's
+/// geometry — mocking the physical cutout in a settings preview, for instance.
+///
+/// Note it is flat-topped, while the live island's resting pill carries
+/// `NotchConfiguration.collapsedTopCornerRadius` of curl on notched hardware. Put
+/// the two side by side and use `NotchShape.pill(height:topCornerRadius:)` instead,
+/// or the difference will read as a bug in one of them.
 ///
 /// It delegates to `NotchShape` rather than reaching for
 /// `UnevenRoundedRectangle`, which would be shorter but draws corners a few

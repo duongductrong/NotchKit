@@ -6,8 +6,9 @@ import SwiftUI
 ///
 /// There is **one** surface, not two. A single `NotchShape` whose width, height,
 /// and both corner radii animate together, so the pill physically grows into the
-/// panel and its top corners curl inward as it goes. Because
-/// `NotchShape(topCornerRadius: 0)` *is* the pill, every state in between is a
+/// panel and its top corners curl further inward as it goes. Because the resting
+/// pill is just `NotchShape` at a small top radius — and at `0` an exactly flat
+/// one, which is what displays with no cutout get — every state in between is a
 /// valid shape and the whole thing is four interpolating numbers.
 ///
 /// The alternative — mounting a pill view and a panel view and cross-fading them —
@@ -77,7 +78,9 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
             // The four interpolating values. Everything visual follows from these.
             let surfaceWidth = isOpen ? expandedWidth : collapsedWidth
             let surfaceHeight = isOpen ? expandedHeight : collapsedHeight
-            let topRadius = isOpen ? expandedTopRadius : 0
+            let topRadius = cutoutTopRadius(
+                isOpen ? config.expandedTopCornerRadius : config.collapsedTopCornerRadius
+            )
             let bottomRadius = isOpen ? config.expandedBottomCornerRadius : collapsedHeight / 2
 
             let shape = NotchShape(
@@ -134,10 +137,14 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
     }
 
     /// Concave top corners only where there is a real cutout to fuse with. On a
-    /// plain display they read as a rendering fault, so the top stays flat and
-    /// the panel morphs pill → larger pill.
-    private var expandedTopRadius: CGFloat {
-        presenter.geometry.hasPhysicalNotch ? config.expandedTopCornerRadius : 0
+    /// plain display they read as a rendering fault, so the top stays flat in
+    /// both states and the island morphs pill → larger pill.
+    ///
+    /// Both phases go through here, which is what keeps the collapsed curl and the
+    /// expanded one from disagreeing about the display: a pill that flares but a
+    /// panel that does not would make the morph appear to *un*-curl as it opens.
+    private func cutoutTopRadius(_ requested: CGFloat) -> CGFloat {
+        presenter.geometry.hasPhysicalNotch ? requested : 0
     }
 
     // MARK: Content

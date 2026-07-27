@@ -16,6 +16,21 @@ struct NotchSpacingTests {
         #expect(config.expandedContentInsets.trailing >= 22)
     }
 
+    @Test("The collapsed curl is present, but well under the expanded one")
+    func collapsedTopCurlStaysSubtle() {
+        let config = NotchConfiguration.standard
+
+        // Present, or the pill goes back to reading as a rectangle parked under
+        // the cutout...
+        #expect(config.collapsedTopCornerRadius > 0)
+        // ...but the same radius at both scales is not "consistent", it is wrong:
+        // 22pt of curl is a gentle flare across a 260pt panel and a gouge across a
+        // 38pt pill. `NotchShape` clamps at a quarter of the height, so anything at
+        // or above that ceiling would also be silently pinned.
+        #expect(config.collapsedTopCornerRadius < config.expandedTopCornerRadius)
+        #expect(config.collapsedTopCornerRadius <= NotchGeometry.simulatedNotchHeight / 4)
+    }
+
     @Test("An explicit inset override wins")
     func insetOverrideWins() {
         let custom = EdgeInsets(top: 1, leading: 2, bottom: 3, trailing: 4)

@@ -26,7 +26,7 @@ Rather than treating the island as an opaque container, NotchKit models every su
 ### 1. Silhouette & Fillets (`NotchShape`)
 * **Mission**: Maintains one morphing shape with concave top corner fillets and convex bottom corner fillets.
 * **Arguments & Parameters**:
-  * `topCornerRadius: CGFloat`: Concave top radius curling into the screen bezel (0 when collapsed, ~22pt when expanded).
+  * `topCornerRadius: CGFloat`: Concave top radius curling into the screen bezel (~6pt when collapsed, ~22pt when expanded; 0 in both on displays with no cutout).
   * `bottomCornerRadius: CGFloat`: Convex bottom radius (~19pt when collapsed, ~22pt when expanded).
   * `width: CGFloat` & `height: CGFloat`: Morphing dimensions.
 * **Key Invariant**: Interpolating 4 numbers on a single shape eliminates cross-fade cuts, producing a genuine physical morph.

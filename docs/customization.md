@@ -135,7 +135,27 @@ config.collapsedWidth = .fixed(220)
 
 // Invisible margin around the pill, purely for aiming.
 config.collapsedHitPadding = 14
+
+// Slight concave curl at the pill's top corners, so it flares into the bezel the
+// way the open panel does. 0 for a dead-flat top.
+config.collapsedTopCornerRadius = 6
 ```
+
+### `collapsedTopCornerRadius`
+
+The physical cutout does not meet the bezel at a right angle, so a dead-flat pill
+top reads as a black rectangle *parked* under the notch rather than as part of it. A
+few points of the same curl the expanded panel has fuses the two.
+
+Keep it well under `expandedTopCornerRadius`. The two are seen at very different
+scales, and the same number is a gentle flare across a 260pt panel and a gouge
+across a 38pt pill. `NotchShape` clamps the top radius to a quarter of the height
+either way, so on current hardware anything above ~9.5pt is silently pinned and
+raising it further does nothing.
+
+Forced to `0` on displays with no hardware cutout — the same rule
+`expandedTopCornerRadius` follows, and for the same reason: there is nothing there
+to fuse with, so the curl reads as a rendering fault.
 
 `presenter.collapsedGutterWidth` resolves the usable per-side width for whichever
 strategy is active — pass that to `NotchCutoutLayout` rather than recomputing.
@@ -144,7 +164,7 @@ strategy is active — pass that to `NotchCutoutLayout` rather than recomputing.
 
 | Parameter | Default | Notes |
 |---|---|---|
-| `edgeInset` | `nil` | `nil` derives half the pill height — the smallest inset provably safe for content of *any* height. |
+| `edgeInset` | `nil` | `nil` derives half the pill height — safe for content of *any* height, bar the last ~0.6pt of the corner once `collapsedTopCornerRadius` shifts the wall inboard. |
 | `alignment` | `.center` | `.firstTextBaseline` when the two sides hold text at different sizes. |
 
 To size the pill to its content, measure the content and feed the result into
@@ -212,6 +232,7 @@ Position anything that must be *read* by hand — see `NowPlayingIsland.swift`.
 | `collapsedWidth` | `.wrapCutout(reserve: 44)` | See above. |
 | `collapsedHitPadding` | 6 | Invisible aiming margin. |
 | `shadowInsetHorizontal` / `Bottom` | 18 / 22 | Transparent room inside the window for the shadow. |
+| `collapsedTopCornerRadius` | 6 | Slight curl on the resting pill. Clamped to a quarter of the pill height (~9.5pt); forced to 0 on displays with no cutout. |
 | `expandedTopCornerRadius` | 22 | Concave curl. Forced to 0 on displays with no cutout. |
 | `expandedBottomCornerRadius` | 22 | Convex fillet. |
 | `expandedContentInsetsOverride` | `nil` | `nil` derives insets that clear the silhouette. |
@@ -379,9 +400,10 @@ struct SquaredIslandShape: Shape {
 Swap it into `NotchContainer`'s surface. Nothing else changes — the window, hit
 testing, and motion layers do not know which shape is in use.
 
-If your shape needs to serve *both* phases, give it a parameter that degenerates
-into the collapsed form the way `NotchShape.topCornerRadius == 0` does. Otherwise
-you are back to swapping shape types, and the transition stops reading as a morph.
+If your shape needs to serve *both* phases, give it a parameter that carries it
+continuously into the collapsed form the way `NotchShape.topCornerRadius` does —
+small at rest, larger when open, and degenerate at `0`. Otherwise you are back to
+swapping shape types, and the transition stops reading as a morph.
 
 ## Your own continuous indicator
 

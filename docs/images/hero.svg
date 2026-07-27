@@ -13,9 +13,9 @@
   <line x1="60" y1="90" x2="1140" y2="90" stroke="#2a2a31" stroke-width="1" stroke-dasharray="4 6"/>
 
   <g fill="#f2f2f5">
-    <!-- Stage 1 — collapsed pill: topRadius 0, so the concave fillets vanish -->
+    <!-- Stage 1 — collapsed pill: topRadius 6, a slight flare into the bezel -->
     <g transform="translate(170 90)">
-      <path d="M 0 0 L 0 18 Q 0 36 18 36 L 142 36 Q 160 36 160 18 L 160 0 Z"/>
+      <path d="M 0 0 Q 6 0 6 6 L 6 18 Q 6 36 24 36 L 136 36 Q 154 36 154 18 L 154 6 Q 154 0 160 0 Z"/>
     </g>
 
     <!-- Stage 2 — mid-morph: the curl arrives as the panel grows tall enough -->

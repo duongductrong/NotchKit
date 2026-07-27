@@ -87,10 +87,11 @@ function MorphSection() {
 				<>
 					A cross-fade always reads as a <em>switch</em>: at no instant is there
 					a single object changing form. NotchKit keeps everything to one{" "}
-					<code className="text-foreground">NotchShape</code> — a zero top
-					corner radius degenerates into exactly the collapsed pill. Hover the
-					elements to see where each one lives on the shape, and tune the knobs
-					to feel the parameters.
+					<code className="text-foreground">NotchShape</code> — the collapsed
+					pill is that same shape at a small top corner radius, flaring into the
+					bezel just like the open panel, only less. Hover the elements to see
+					where each one lives on the shape, and tune the knobs to feel the
+					parameters.
 				</>
 			}
 		>

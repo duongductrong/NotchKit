@@ -78,6 +78,14 @@ public struct NotchCutoutLayout<Leading: View, Trailing: View>: View {
     /// and it fails silently at the corners when someone later makes the content
     /// taller. Half-height is the value that stops being a question.
     ///
+    /// One caveat since the pill gained a top curl: a curl of `c` shifts the side
+    /// walls — and with them the bottom fillet — inboard by `c`, so strictly the
+    /// safe inset is `c + height / 2`. In practice the overlap is negligible,
+    /// because the fillet only reaches its widest point at the very bottom edge:
+    /// at the default 6pt curl in a 38pt pill, half-height clears the curve until
+    /// the last ~0.6pt of height. Pass an explicit `edgeInset` if you are placing
+    /// something that genuinely runs the full height of the pill into a corner.
+    ///
     /// Usable gutter is therefore `gutterWidth - resolvedEdgeInset`. If that is
     /// too tight for your content, widen `NotchConfiguration.collapsedWidth`
     /// rather than shrinking the inset.

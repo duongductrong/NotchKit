@@ -165,7 +165,16 @@ It is behind the physical cutout. Looks perfect on an external monitor.
 ### Concave top corners look like a rendering fault on an external display
 There is no cutout there to fuse with.
 **Fix:** the container already passes `topCornerRadius: 0` when
-`!geometry.hasPhysicalNotch`; if you replaced the container, do the same.
+`!geometry.hasPhysicalNotch` — in *both* phases, so the resting pill drops its
+`collapsedTopCornerRadius` curl too. If you replaced the container, do the same.
+
+### The resting pill has a small notch bitten out of each top corner
+That is `collapsedTopCornerRadius` (6pt by default), and on notched hardware it is
+what fuses the pill with the cutout instead of leaving it parked underneath.
+**Fix:** only if you want it gone — `config.collapsedTopCornerRadius = 0` restores a
+dead-flat top. If it looks like a *gouge* rather than a flare, the value is too
+large for the pill height; `NotchShape` caps it at a quarter of that height
+(~9.5pt), and the useful range is well below the cap.
 
 ### Island renders off-screen or on the wrong monitor after replug
 A persisted `CGDirectDisplayID` was recycled for a different physical display.

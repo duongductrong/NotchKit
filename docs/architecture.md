@@ -68,12 +68,14 @@ Placement changes (display hotplug, arrangement change) set the frame
 
 There is **one** surface, not two. A single `NotchShape` whose width, height, and
 both corner radii animate together, so the pill physically grows into the panel and
-its top corners curl inward as it goes.
+its top corners curl further inward as it goes.
 
 ```swift
 let surfaceWidth  = isOpen ? expandedWidth  : collapsedWidth
 let surfaceHeight = isOpen ? expandedHeight : collapsedHeight
-let topRadius     = isOpen ? expandedTopRadius : 0
+// `cutoutTopRadius` returns 0 on a display with no hardware cutout, in either phase.
+let topRadius     = cutoutTopRadius(isOpen ? config.expandedTopCornerRadius
+                                           : config.collapsedTopCornerRadius)
 let bottomRadius  = isOpen ? config.expandedBottomCornerRadius : collapsedHeight / 2
 
 let shape = NotchShape(topCornerRadius: topRadius, bottomCornerRadius: bottomRadius)
@@ -85,9 +87,18 @@ ZStack(alignment: .top) { collapsedContent; expandedContent }
     .animation(motion.animation(for: presenter.phase), value: presenter.phase)
 ```
 
-This works because `NotchShape(topCornerRadius: 0)` **is** the collapsed pill — the
-concave arcs vanish and leave a flat top. Every state in between is a valid shape,
-so the entire transition is four interpolating numbers.
+This works because the collapsed pill **is** `NotchShape`, just at a small top
+radius — and at `0` the concave arcs vanish entirely and leave a flat top, which is
+what a display with no cutout gets. Every state in between is a valid shape, so the
+entire transition is four interpolating numbers.
+
+The collapsed radius is deliberately a fraction of the expanded one (6pt against
+22pt by default). The physical cutout does not meet the bezel at a right angle, so a
+dead-flat pill top reads as a black rectangle parked underneath it; a few points of
+curl fuses the two. Matching the panel's radius does not work either — the same
+number is a gentle flare across a 260pt panel and a gouge across a 38pt pill.
+`NotchShape` clamps the top radius to a quarter of the height regardless, which puts
+a hard ceiling of ~9.5pt on the collapsed curl on current hardware.
 
 ### Why not cross-fade two views
 

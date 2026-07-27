@@ -27,8 +27,8 @@ than two views cross-fading into each other.
 
 That distinction is the library. A cross-fade always reads as a *switch*, because
 at no instant is there a single object changing form. NotchKit keeps it to one
-`NotchShape`, which works because a zero top radius degenerates into exactly the
-collapsed pill.
+`NotchShape`, which works because the resting pill is that same shape at a small
+top radius — it flares into the bezel just like the open panel, only less.
 
 You write two SwiftUI views — what the pill shows and what the panel shows.
 NotchKit owns the window, the silhouette, hit testing, pointer hysteresis, and the

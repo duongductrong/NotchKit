@@ -102,10 +102,46 @@ struct NotchShapeTests {
         #expect(bottom == 19) // semicircular bottom survives the clamp
     }
 
-    @Test("The pill factory asks for a flat top and a semicircular bottom")
+    @Test("The pill factory is flat-topped unless asked for a curl")
     func pillFactoryValues() {
         #expect(NotchShape.pill(height: 40).topCornerRadius == 0)
         #expect(NotchShape.pill(height: 40).bottomCornerRadius == 20)
+        #expect(NotchShape.pill(height: 40, topCornerRadius: 6).topCornerRadius == 6)
+    }
+
+    /// The resting pill is *not* flat-topped on notched hardware.
+    ///
+    /// A dead-flat top reads as a black rectangle parked under the cutout, because
+    /// the hardware does not meet the bezel at a right angle either. A few points
+    /// of the same curl the panel has is what fuses the two.
+    @Test("The resting pill carries a slight top curl that survives the clamp")
+    func collapsedPillCurlsAtTheTop() {
+        // Pill-sized: a 224pt cutout plus the default 44pt reserve either side, at
+        // notch height.
+        let rect = CGRect(x: 0, y: 0, width: 312, height: 38)
+        let curl = NotchConfiguration.standard.collapsedTopCornerRadius
+
+        // `height / 4` — 9.5pt here — is the ceiling. The default has to sit under
+        // it, or the knob is silently pinned and tuning it does nothing.
+        let (top, _) = NotchShape.resolvedRadii(in: rect, top: curl, bottom: rect.height / 2)
+        #expect(top == curl)
+
+        let curled = NotchShape.pill(height: rect.height, topCornerRadius: curl).path(in: rect)
+        let flat = NotchShape.pill(height: rect.height).path(in: rect)
+
+        // Same flare as the panel, just smaller: the top edge still spans the full
+        // width, so the curl reads as the bezel flowing in rather than as a corner
+        // bitten off the pill.
+        #expect(curled.boundingRect.minX == rect.minX)
+        #expect(curled.boundingRect.maxX == rect.maxX)
+
+        // Just below that edge the outline has pulled inward, where a flat pill is
+        // still solid.
+        #expect(!curled.contains(CGPoint(x: 2, y: 3)))
+        #expect(flat.contains(CGPoint(x: 2, y: 3)))
+
+        // And past the wall the pill is solid again.
+        #expect(curled.contains(CGPoint(x: curl + 1, y: curl)))
     }
 
     @Test("Every intermediate state of the morph is a drawable shape")
