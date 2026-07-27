@@ -69,7 +69,7 @@ https://github.com/duongductrong/NotchKit.git
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.1.0")
+    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.2.1")
 ],
 targets: [
     .target(name: "YourApp", dependencies: ["NotchKit"])
