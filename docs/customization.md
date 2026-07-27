@@ -231,7 +231,7 @@ Position anything that must be *read* by hand — see `NowPlayingIsland.swift`.
 | `expandedSize` | 540 × 260 | Panel content size. Also drives the window size. |
 | `collapsedWidth` | `.wrapCutout(reserve: 44)` | See above. |
 | `collapsedHitPadding` | 6 | Invisible aiming margin. |
-| `shadowInsetHorizontal` / `Bottom` | 18 / 22 | Transparent room inside the window for the shadow. |
+| `shadowInsetHorizontal` / `Bottom` | 20 / 24 | **Floor** for the transparent room inside the window. The margin actually reserved is `max(this, style.shadowReach*)` — see `shadowInsets(fitting:)`. |
 | `collapsedTopCornerRadius` | 6 | Slight curl on the resting pill. Clamped to a quarter of the pill height (~9.5pt); forced to 0 on displays with no cutout. |
 | `expandedTopCornerRadius` | 22 | Concave curl. Forced to 0 on displays with no cutout. |
 | `expandedBottomCornerRadius` | 22 | Convex fillet. |
@@ -314,7 +314,7 @@ animation is invisible to a screen reader.
 |---|---|---|
 | `.standard` | pure black | Merges with the physical cutout. |
 | `.warmPaper` | `#0D0D0F` + cream | Reads as its own surface beside the cutout. |
-| `.contrast` | pure black, stronger edge | Legible over bright or busy wallpapers. |
+| `.contrast` | pure black, deeper shadow | Legible over bright or busy wallpapers. |
 | `.translucent` | 72% black | Nice over static wallpaper; cannot merge with the cutout. |
 
 **Why pure black is the default.** The physical notch is opaque housing, not
@@ -323,14 +323,31 @@ black beside it is a visibly *lighter* patch, and the pill reads as a grey
 rectangle bracketing the cutout instead of one continuous shape. Subtle in a
 screenshot, obvious in person.
 
-The hairline exists for the opposite reason: pure black on a dark wallpaper has no
-edge at all, and the panel dissolves into the desktop. A few percent of white
-rescues the silhouette without being visible on light backgrounds.
+**No stroked edge, ever.** The silhouette is ink and shadow only, in both phases.
+A rim is what makes an island read as something pasted on top of the display: a
+centred stroke puts half its width outside the fill, so it outlines the shape
+against the desktop and, while collapsed, traces the hardware cutout itself.
+Native is unbroken black — depth comes from `shadowColor` on the open panel, which
+is already suppressed while collapsed for the same reason.
+
+If one particular island really does want an edge, stroke it inside your own
+content. That keeps the choice local instead of putting a rim on every island.
+
+**The shadow is three knobs and two passes.** You set `shadowColor`,
+`shadowRadius`, and `shadowOffsetY`; what gets drawn is a tight `contactShadow`
+that keeps the panel touching the screen and a wide `ambientShadow` that fades
+out, both derived from those three. One Gaussian cannot do both jobs — wide enough
+to look soft and it reads as a uniform grey halo with the panel hovering above it.
+
+You do not have to reserve room for it. `shadowReachHorizontal` and
+`shadowReachBelow` say how far the falloff runs — about `2 × radius`, plus the
+offset downward — and the window reserves at least that much, so raising the radius
+grows the window rather than truncating the gradient against its edge.
 
 ```swift
 var style = NotchStyle.standard
-style.hairline = .white.opacity(0.14)
-style.shadowRadius = 20
+style.shadowRadius = 44        // window grows to fit; nothing clips
+style.shadowOffsetY = 24
 style.foreground = .white
 style.colorScheme = nil   // inherit the system scheme instead of forcing dark
 ```

@@ -72,8 +72,12 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
             let geometry = presenter.geometry
             let collapsedHeight = geometry.collapsedHeight
             let collapsedWidth = presenter.collapsedSurfaceWidth
-            let expandedWidth = max(0, proxy.size.width - config.shadowInsetHorizontal * 2)
-            let expandedHeight = max(collapsedHeight, proxy.size.height - config.shadowInsetBottom)
+            // The same resolved margin the window was sized with — read from the
+            // one function rather than from the two raw fields, or the panel ends
+            // up a different size than the window reserved for it.
+            let shadowInsets = config.shadowInsets(fitting: style)
+            let expandedWidth = max(0, proxy.size.width - shadowInsets.horizontal * 2)
+            let expandedHeight = max(collapsedHeight, proxy.size.height - shadowInsets.bottom)
 
             // The four interpolating values. Everything visual follows from these.
             let surfaceWidth = isOpen ? expandedWidth : collapsedWidth
@@ -109,16 +113,35 @@ public struct NotchContainer<Collapsed: View, Expanded: View>: View {
                 // clipped to the shape, so the panel is revealed rather than
                 // faded in.
                 .frame(width: surfaceWidth, height: surfaceHeight, alignment: .top)
+                // Ink and shadow only — deliberately no stroked edge, in either
+                // phase. A rim is what makes an island read as something drawn
+                // *on top of* the display rather than part of it: a centred
+                // stroke puts half its width outside the fill, so it traces a
+                // light outline against the desktop and, while collapsed,
+                // around the hardware cutout itself. Pure-black ink merging
+                // into the bezel is the whole effect, and an edge is what
+                // breaks it.
                 .background(shape.fill(style.ink))
                 .clipShape(shape)
-                .overlay { shape.stroke(style.hairline, lineWidth: style.hairlineWidth) }
+                // Two passes, tight then wide. Chained rather than drawn as
+                // separate casters so a translucent `ink` still shows what is
+                // behind it: each pass filters the composite below it, which also
+                // means the wide pass blurs the tight one's edge instead of laying
+                // a second hard-edged gradient over it. That is where the smooth
+                // falloff comes from.
+                //
+                // Both radii go to 0 when collapsed: the pill sits flush against
+                // the bezel, and a shadow there makes it look like it is hovering
+                // in front of the hardware.
                 .shadow(
-                    color: style.shadowColor,
-                    // No shadow when collapsed: the pill sits flush against the
-                    // bezel, and a shadow there makes it look like it is hovering
-                    // in front of the hardware.
-                    radius: isOpen ? style.shadowRadius : 0,
-                    y: isOpen ? style.shadowOffsetY : 0
+                    color: style.contactShadow.color,
+                    radius: isOpen ? style.contactShadow.radius : 0,
+                    y: isOpen ? style.contactShadow.offsetY : 0
+                )
+                .shadow(
+                    color: style.ambientShadow.color,
+                    radius: isOpen ? style.ambientShadow.radius : 0,
+                    y: isOpen ? style.ambientShadow.offsetY : 0
                 )
                 .scaleEffect(isPeeking ? motion.peekScale : 1, anchor: .top)
                 // One driver for the morph. Content opacity is choreographed

@@ -28,14 +28,26 @@ public final class NotchPresenter {
     public var configuration: NotchConfiguration {
         didSet {
             let height = geometry.collapsedHeight
-            guard configuration.windowSize(collapsedHeight: height)
-                != oldValue.windowSize(collapsedHeight: height) else { return }
+            guard configuration.windowSize(collapsedHeight: height, style: style)
+                != oldValue.windowSize(collapsedHeight: height, style: style) else { return }
             refreshPlacement()
         }
     }
 
     public var motion: NotchMotion
-    public var style: NotchStyle
+
+    /// Mutable at runtime like `configuration`, and for the same reason it has to
+    /// reposition: the window reserves room for the shadow the *style* asks for, so
+    /// swapping to a style with a wider shadow has to grow the window or the new
+    /// falloff would be clipped by the old margin.
+    public var style: NotchStyle {
+        didSet {
+            let height = geometry.collapsedHeight
+            guard configuration.windowSize(collapsedHeight: height, style: style)
+                != configuration.windowSize(collapsedHeight: height, style: oldValue) else { return }
+            refreshPlacement()
+        }
+    }
 
     /// Pin the island to a specific display, by `NSScreen.notch_stableID`.
     /// `nil` picks automatically: notched screen first, then main.
@@ -88,8 +100,8 @@ public final class NotchPresenter {
     /// Builds the window and shows the collapsed island.
     ///
     /// `collapsed` and `expanded` receive no arguments — read `presenter.phase`
-    /// if your content needs to know. Both are wrapped in the correct silhouette,
-    /// hairline, and shadow for you; supply content only.
+    /// if your content needs to know. Both are wrapped in the correct silhouette
+    /// and shadow for you; supply content only.
     public func install(
         @ViewBuilder collapsed: @escaping () -> some View,
         @ViewBuilder expanded: @escaping () -> some View
@@ -216,14 +228,14 @@ public final class NotchPresenter {
 
     /// The region that should accept clicks right now, expressed inside any
     /// window-sized rect (view bounds or screen frame — see
-    /// `NotchConfiguration.contentRect(in:)` for why one function covers both).
+    /// `NotchConfiguration.contentRect(in:style:)` for why one function covers both).
     ///
     /// While collapsed this is deliberately *larger* than the drawn pill by
     /// `collapsedHitPadding`, so a compact pill is still easy to hit.
     public func interactiveRect(in bounds: CGRect) -> CGRect {
         switch phase {
         case .expanded:
-            configuration.contentRect(in: bounds)
+            configuration.contentRect(in: bounds, style: style)
         case .collapsed, .peeking:
             NotchGeometry.centeredRect(
                 on: bounds,
@@ -238,7 +250,7 @@ public final class NotchPresenter {
     }
 
     private func windowFrame(on screen: NSScreen) -> CGRect {
-        let size = configuration.windowSize(collapsedHeight: geometry.collapsedHeight)
+        let size = configuration.windowSize(collapsedHeight: geometry.collapsedHeight, style: style)
         let width = min(size.width, screen.frame.width)
         return CGRect(
             x: screen.frame.midX - width / 2,

@@ -38,10 +38,10 @@ public struct MorphElement: Identifiable, Hashable {
         ),
         MorphElement(
             id: "style",
-            name: "Ink & Hairline",
+            name: "Ink & Shadow",
             icon: "paintpalette",
             mission: "Pitch-black hardware blending vs warm paper translucent ink.",
-            parameters: ["ink: Color", "hairline: Color", "shadow: ShadowStyle"],
+            parameters: ["ink: Color", "shadowColor: Color", "shadowRadius: CGFloat"],
             details: "Matches OLED black bezels or applies distinct card styling."
         ),
         MorphElement(

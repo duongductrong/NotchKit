@@ -173,7 +173,7 @@ Two consequences:
 
 **One rect function serves two spaces.** The window is screen-centred and
 fixed-size, and the island hangs off the top, so the shadow margin is always the
-bottom strip. `NotchConfiguration.contentRect(in:)` therefore works unchanged on
+bottom strip. `NotchConfiguration.contentRect(in:style:)` therefore works unchanged on
 both a view's `bounds` and the window's screen `frame` — the same offsets from the
 same corner. That is why hit testing needs no coordinate conversion, and there is
 a test pinning the equivalence.
@@ -208,6 +208,15 @@ absence produces a confusing bug:
 rectangle*, not your path, so the shadow must be drawn in SwiftUI where it can
 follow the silhouette. That is what the `shadowInset*` room in the window is for —
 anything outside the window is clipped.
+
+Which is why the window is sized from the config **and** the style. The shadow's
+extent is a property of the style, the room for it is a property of the window, and
+if the two are set independently one of them is eventually wrong — silently, and
+only in the outer few points of a gradient. `NotchConfiguration.shadowInsets(fitting:)`
+resolves both into one number (`max(configured floor, style.shadowReach*)`), and
+the window frame, the hit-test rect, and the container's panel-size maths all read
+it from there. Changing `presenter.style` can therefore resize the window, exactly
+as changing `configuration` can.
 
 ## Why global event monitors
 

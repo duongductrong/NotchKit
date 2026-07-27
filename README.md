@@ -152,7 +152,7 @@ Everything else is a value type you can swap wholesale or tweak field by field:
 |---|---|---|
 | `NotchConfiguration` | Panel size, pill width, hit target, hover policy, radii, insets, top reserve, content alignment | `.standard`, `.clickOnly`, `.statusOnly`, `.canvas`, `.standalone(pillWidth:)` |
 | `NotchMotion` | Every curve, delay, and scale | `.standard`, `.crisp`, `.playful`, `.reduced` |
-| `NotchStyle` | Ink, hairline, shadow, foreground, colour scheme | `.standard`, `.warmPaper`, `.contrast`, `.translucent` |
+| `NotchStyle` | Ink, shadow, foreground, colour scheme | `.standard`, `.warmPaper`, `.contrast`, `.translucent` |
 | `NotchCollapsedWidth` | Whether the pill wraps the cutout or takes a fixed width | `.wrapCutout(reserve:)`, `.fixed(_:)` |
 | `NotchExpandedTopReserve` | How much of the panel stays clear of the cutout | `.cutoutOnly`, `.always`, `.fixed(_:)`, `.none` |
 | `NotchBarsStyle` | Bar count, sizes, levels, peaks, period, stagger, curve, tint | `.steady(_:)`, `.wave(count:…)` |

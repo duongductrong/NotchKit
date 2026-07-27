@@ -33,6 +33,13 @@ public struct NotchConfiguration: Equatable, Sendable {
     /// AppKit's shadow traces the *window* rectangle, not your concave shape,
     /// and would draw a hard-edged box around the island). A SwiftUI shadow
     /// needs room to fall into, and anything outside the window is clipped.
+    ///
+    /// These are a **floor**, not the final margin. What gets reserved is the
+    /// larger of these and what the style's shadow actually reaches
+    /// (`shadowInsets(fitting:)`), because a margin that is merely *usually* big
+    /// enough fails in the worst possible way: the falloff is truncated mid-slope
+    /// and the soft edge becomes a ruled line, which reads as a rendering bug
+    /// rather than as a number being too small.
     public var shadowInsetHorizontal: CGFloat
     public var shadowInsetBottom: CGFloat
 
@@ -121,8 +128,8 @@ public struct NotchConfiguration: Equatable, Sendable {
         expandedSize: CGSize = CGSize(width: 540, height: 260),
         collapsedWidth: NotchCollapsedWidth = .wrapCutout(reserve: 44),
         collapsedHitPadding: CGFloat = 6,
-        shadowInsetHorizontal: CGFloat = 18,
-        shadowInsetBottom: CGFloat = 22,
+        shadowInsetHorizontal: CGFloat = 20,
+        shadowInsetBottom: CGFloat = 24,
         collapsedTopCornerRadius: CGFloat = 6,
         expandedTopCornerRadius: CGFloat = 22,
         expandedBottomCornerRadius: CGFloat = 22,
@@ -157,11 +164,30 @@ public struct NotchConfiguration: Equatable, Sendable {
         self.pointerSampleInterval = pointerSampleInterval
     }
 
+    /// The margin actually reserved for the shadow: whichever is larger, the
+    /// configured floor or the distance the style's shadow reaches.
+    ///
+    /// Taking the max rather than trusting either alone is what makes "no clipped
+    /// shadow" hold for *any* style. A caller who bumps `shadowRadius` to 60 does
+    /// not also have to know that the visible falloff runs to twice the radius
+    /// (`NotchStyle.shadowSpreadFactor`) and go widen two unrelated numbers — and a
+    /// caller who wants a wider transparent margin than the shadow needs still
+    /// gets it.
+    ///
+    /// Pure function of its two inputs, so it is testable without a display.
+    public func shadowInsets(fitting style: NotchStyle) -> (horizontal: CGFloat, bottom: CGFloat) {
+        (
+            horizontal: max(shadowInsetHorizontal, style.shadowReachHorizontal),
+            bottom: max(shadowInsetBottom, style.shadowReachBelow)
+        )
+    }
+
     /// Total window size: content plus the shadow margin.
-    public func windowSize(collapsedHeight: CGFloat) -> CGSize {
-        CGSize(
-            width: expandedSize.width + shadowInsetHorizontal * 2,
-            height: collapsedHeight + expandedSize.height + shadowInsetBottom
+    public func windowSize(collapsedHeight: CGFloat, style: NotchStyle) -> CGSize {
+        let insets = shadowInsets(fitting: style)
+        return CGSize(
+            width: expandedSize.width + insets.horizontal * 2,
+            height: collapsedHeight + expandedSize.height + insets.bottom
         )
     }
 
@@ -208,12 +234,13 @@ public struct NotchConfiguration: Equatable, Sendable {
     /// AppKit uses bottom-left origin for both: the island hangs off the top,
     /// so the shadow margin is the strip along the bottom. One function, two
     /// coordinate spaces, no conversion — used for hit testing in each.
-    public func contentRect(in bounds: CGRect) -> CGRect {
-        CGRect(
-            x: bounds.minX + shadowInsetHorizontal,
-            y: bounds.minY + shadowInsetBottom,
-            width: max(0, bounds.width - shadowInsetHorizontal * 2),
-            height: max(0, bounds.height - shadowInsetBottom)
+    public func contentRect(in bounds: CGRect, style: NotchStyle) -> CGRect {
+        let insets = shadowInsets(fitting: style)
+        return CGRect(
+            x: bounds.minX + insets.horizontal,
+            y: bounds.minY + insets.bottom,
+            width: max(0, bounds.width - insets.horizontal * 2),
+            height: max(0, bounds.height - insets.bottom)
         )
     }
 }

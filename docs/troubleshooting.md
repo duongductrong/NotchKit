@@ -168,6 +168,23 @@ There is no cutout there to fuse with.
 `!geometry.hasPhysicalNotch` — in *both* phases, so the resting pill drops its
 `collapsedTopCornerRadius` curl too. If you replaced the container, do the same.
 
+### Faint white outline traced around the pill or the notch
+A stroked edge on the silhouette. A `.stroke` is centred on the path, so half its
+width lands *outside* the fill: it outlines the shape against the desktop, and
+while collapsed it traces the hardware cutout — the seam pure-black `ink` exists
+to hide.
+**Fix:** the container draws ink and shadow only, with no stroke in either phase,
+so nothing in NotchKit produces this. If you see it, it is coming from your own
+content — `NotchCutoutLayout`'s children draw over the ink, and a `.stroke`,
+`.border`, or a `.background` on a material there will show. If you replaced the
+container, drop the overlay rather than gating it.
+
+### Setting `style.hairline` does not compile
+It was removed along with `hairlineWidth`: the container no longer strokes an edge
+in either phase, so the field had nothing to drive.
+**Fix:** delete the assignment. For depth on the open panel use `shadowColor` /
+`shadowRadius`; for an edge on one specific island, stroke it in your own content.
+
 ### The resting pill has a small notch bitten out of each top corner
 That is `collapsedTopCornerRadius` (6pt by default), and on notched hardware it is
 what fuses the pill with the cutout instead of leaving it parked underneath.
@@ -204,9 +221,24 @@ windows. On a MacBook it vanishes under the menu bar and reads as a crash.
 **Fix:** `hasShadow = false` and draw the shadow in SwiftUI.
 
 ### Shadow is clipped flat on one side
-No transparent margin in the window for it to fall into.
-**Fix:** `shadowInsetHorizontal` / `shadowInsetBottom`, included in
-`windowSize(collapsedHeight:)`.
+Not enough transparent margin in the window for it to fall into. The trap is that
+a margin equal to `shadowRadius` looks sufficient and is not: the visible falloff
+runs to about **twice** the radius, so the outer half is still measurably dark
+where the window ends, and the soft edge becomes a line ruled across it.
+**Fix:** nothing, if you use `NotchPresenter` — `shadowInsets(fitting:)` reserves
+`max(configured floor, style.shadowReach*)`, so the window grows to fit whatever
+shadow the style asks for and `shadowInsetHorizontal` / `shadowInsetBottom` are
+only a lower bound. If you size the window yourself, reserve
+`style.shadowReachHorizontal` and `style.shadowReachBelow`, and remember the
+offset counts only downward.
+
+### Shadow reads as a flat grey halo, or the panel looks like it is floating
+One Gaussian cannot be both soft and grounded — wide enough to look diffuse and it
+stops touching the surface it sits on.
+**Fix:** already handled: the container draws `contactShadow` then `ambientShadow`,
+chained so the wide pass blurs the tight one's edge rather than laying a second
+gradient over it. Both derive from `shadowRadius` / `shadowOffsetY` / `shadowColor`,
+so tune those three and the split follows.
 
 ### Opening the island deactivates the user's frontmost app
 **Fix:** `.nonactivatingPanel`, `canBecomeMain = false`, and only

@@ -16,7 +16,7 @@ Rather than treating the island as an opaque container, NotchKit models every su
 │ └──────────────────────────────────────────────────────┘ │
 │ ❖ NotchShape (Corner Fillets: topRadius, bottomRadius)    │
 │ ⚡ NotchMotion (Spring Engine: stiffness, damping)        │
-│ 🎨 NotchStyle (Ink, Hairline, Shadow)                   │
+│ 🎨 NotchStyle (Ink, Shadow)                              │
 │ 🎯 NotchPointerMonitor (Transit Filter & Jitter Gate)    │
 │ 📐 NotchExpandedTopReserve (Taper-Aware Insets)          │
 │ 📊 NotchBars (Zero-CPU CoreAnimation Rendering)          │
@@ -45,12 +45,13 @@ Rather than treating the island as an opaque container, NotchKit models every su
   * `collapse: Animation`: Monotonic ease (`smooth(0.30)`).
   * `contentRevealDelay: TimeInterval`: Head start (~0.08s - 0.12s) given to shape before fading in text.
 
-### 4. Ink & Hairline Style (`NotchStyle`)
+### 4. Ink & Shadow Style (`NotchStyle`)
 * **Mission**: Pitch-black hardware blending vs warm paper translucent surface ink.
 * **Arguments & Parameters**:
   * `ink: Color`: Pure black (`#000000`) for hardware cutout fusion, or warm paper (`#0D0D0F`).
-  * `hairline: Color`: Subtle inner border (`white 8%`) rescuing edges on dark wallpapers.
-  * `shadowColor: Color`: Shadow path following the concave silhouette.
+  * `shadowColor` / `shadowRadius` / `shadowOffsetY`: Drawn as two derived passes — a tight `contactShadow` that grounds the panel and a wide `ambientShadow` that fades out. Suppressed while collapsed.
+  * `shadowReachHorizontal` / `shadowReachBelow`: How far the falloff actually runs (`2 × radius`, plus the offset downward). The window reserves at least this, so a wide shadow grows the window instead of being clipped.
+  * No stroked edge in either phase — a rim would outline the silhouette against the desktop and trace the cutout. Ink and shadow only.
 
 ### 5. Pointer Hysteresis & Hit Testing (`NotchPointerMonitor`)
 * **Mission**: Dual-delay pointer gate filtering cursor transits and edge jitter.
