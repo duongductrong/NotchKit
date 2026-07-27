@@ -2,6 +2,13 @@
 
 All notable changes to NotchKit will be documented in this file.
 
+
+## [1.2.1](https://github.com/duongductrong/NotchKit/compare/v1.2.0...v1.2.1) (2026-07-27)
+
+### 🐛 Bug Fixes
+
+* **changelog:** configure changelogTitle and reorder header in CHANGELOG.md ([2dc6ae0](https://github.com/duongductrong/NotchKit/commit/2dc6ae0024b9bb3c2a0cf53c7db7058ca78965db))
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
