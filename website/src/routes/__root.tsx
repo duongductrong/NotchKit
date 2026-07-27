@@ -15,7 +15,8 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "NotchKit — Turn the MacBook notch into an interactive Dynamic Island",
+				title:
+					"NotchKit — Turn the MacBook notch into an interactive Dynamic Island",
 			},
 			{
 				name: "description",

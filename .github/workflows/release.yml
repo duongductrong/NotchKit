@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Package.swift'
+      - 'Sources/**'
 
 permissions:
   contents: write
