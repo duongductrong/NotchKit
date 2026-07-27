@@ -1,3 +1,10 @@
+# Changelog
+
+All notable changes to NotchKit will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [1.2.0](https://github.com/duongductrong/NotchKit/compare/v1.1.0...v1.2.0) (2026-07-27)
 
 ### ✨ Features
@@ -17,13 +24,6 @@
 ### 👷 CI/CD
 
 * setup automated release workflow and changelog generation ([a408d35](https://github.com/duongductrong/NotchKit/commit/a408d35b9ba8d8fd95077c49e6eb5329fb8f5446))
-
-# Changelog
-
-All notable changes to NotchKit will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.1.0] - 2026-07-26
 
