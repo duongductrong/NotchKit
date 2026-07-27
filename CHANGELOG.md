@@ -3,6 +3,16 @@
 All notable changes to NotchKit will be documented in this file.
 
 
+## [1.3.0](https://github.com/duongductrong/NotchKit/compare/v1.2.1...v1.3.0) (2026-07-27)
+
+### ✨ Features
+
+* add customizable top corner radius for collapsed resting pills ([ba4af19](https://github.com/duongductrong/NotchKit/commit/ba4af194f0785f2970df824387e4617829918d80))
+
+### ♻️ Code Refactoring
+
+* remove hairline stroke and upgrade shadow rendering ([593f3df](https://github.com/duongductrong/NotchKit/commit/593f3df4cad4b21969967fd10365e6bda6aa80fe))
+
 ## [1.2.1](https://github.com/duongductrong/NotchKit/compare/v1.2.0...v1.2.1) (2026-07-27)
 
 ### 🐛 Bug Fixes

@@ -20,7 +20,7 @@ function Nav() {
 						NotchKit
 					</span>
 					<span className="rounded-full border border-border bg-muted/80 px-2 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
-						v1.2.1
+						v1.3.0
 					</span>
 				</div>
 				<div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -68,7 +68,7 @@ function Hero() {
 			<CodeBlock
 				className="mt-10 w-full max-w-xl text-left"
 				filename="Package.swift"
-				code={`.package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.2.1")`}
+				code={`.package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.3.0")`}
 			/>
 			<p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
 				The island above is live — hover it, click it, or

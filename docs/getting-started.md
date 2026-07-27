@@ -7,7 +7,7 @@ Add the package in Xcode via **File → Add Package Dependencies…** with
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.2.1")
+    .package(url: "https://github.com/duongductrong/NotchKit.git", from: "1.3.0")
 ]
 ```
 
